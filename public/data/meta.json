@@ -1,0 +1,27 @@
+{
+  "fuente_archivo": "Prueba.aprx (ArcGIS Pro) → Prueba.shp",
+  "fuente_datos": "CATASTRO_ARBOLADO_BASE_MAESTRA (catastro municipal de arbolado)",
+  "crs": "EPSG:4326 (WGS 84)",
+  "encoding": "UTF-8",
+  "campos_origen": [
+    "fuente_hoj",
+    "fila_origi",
+    "sector",
+    "direccion",
+    "comuna",
+    "utm_x",
+    "utm_y",
+    "longitud_w",
+    "latitud_wg",
+    "especie_no",
+    "nombre_cie",
+    "dap_origin",
+    "altura_tot",
+    "altura_cop",
+    "fecha_cata"
+  ],
+  "fecha_procesamiento": "2026-08-27T01:29:02.418Z",
+  "registros_origen": 17179,
+  "arboles_publicados": 17179,
+  "nota": "Datos reales extraídos del catastro. El .aprx solo referencia las fuentes; la geometría y atributos provienen del Shapefile externo asociado."
+}

@@ -1,0 +1,232 @@
+{
+  "total_arboles": 17179,
+  "total_registros": 17179,
+  "especies": 134,
+  "especies_todas": 153,
+  "familias": 46,
+  "nativas_pct": 13,
+  "identificadas_pct": 93,
+  "dap_promedio": 22.2,
+  "altura_promedio": 4.9,
+  "calidad": 91,
+  "sectores": [
+    {
+      "sector": "TERRITORIO 3",
+      "n": 7053
+    },
+    {
+      "sector": "TERRITORIO 1",
+      "n": 4276
+    },
+    {
+      "sector": "TERRITORIO 4",
+      "n": 3366
+    },
+    {
+      "sector": "TERRITORIO 2",
+      "n": 2483
+    },
+    {
+      "sector": "Sin sector",
+      "n": 1
+    }
+  ],
+  "top_especies": [
+    {
+      "comun": "Falsa acacia",
+      "cientifico": "Robinia pseudoacacia",
+      "key": "ROBINIA",
+      "slug": "robinia",
+      "n": 1892
+    },
+    {
+      "comun": "Pimiento / Molle",
+      "cientifico": "Schinus molle",
+      "key": "PIMIENTO",
+      "slug": "pimiento",
+      "n": 1764
+    },
+    {
+      "comun": "Arce",
+      "cientifico": "Acer sp.",
+      "key": "ACER",
+      "slug": "acer",
+      "n": 1661
+    },
+    {
+      "comun": "Ligustro / Aligustre",
+      "cientifico": "Ligustrum lucidum",
+      "key": "LIGUSTRO",
+      "slug": "ligustro",
+      "n": 1648
+    },
+    {
+      "comun": "Fresno",
+      "cientifico": "Fraxinus excelsior",
+      "key": "FRESNO",
+      "slug": "fresno",
+      "n": 1478
+    },
+    {
+      "comun": "Melia / Paraíso",
+      "cientifico": "Melia azedarach",
+      "key": "MELIA",
+      "slug": "melia",
+      "n": 1171
+    },
+    {
+      "comun": "Ciruelo/Cerezo ornamental",
+      "cientifico": "Prunus sp.",
+      "key": "PRUNUS",
+      "slug": "prunus",
+      "n": 767
+    },
+    {
+      "comun": "Ciruelo de flor",
+      "cientifico": "Prunus cerasifera",
+      "key": "CIRUELO",
+      "slug": "ciruelo",
+      "n": 566
+    },
+    {
+      "comun": "Liquidámbar",
+      "cientifico": "Liquidambar styraciflua",
+      "key": "LIQUIDAMBAR",
+      "slug": "liquidambar",
+      "n": 364
+    },
+    {
+      "comun": "Mioporo",
+      "cientifico": "Myoporum laetum",
+      "key": "MIOPORO",
+      "slug": "mioporo",
+      "n": 286
+    },
+    {
+      "comun": "Quillay",
+      "cientifico": "Quillaja saponaria",
+      "key": "QUILLAY",
+      "slug": "quillay",
+      "n": 239
+    },
+    {
+      "comun": "Braquiquito",
+      "cientifico": "Brachychiton populneus",
+      "key": "BRACHICHITON",
+      "slug": "brachichiton",
+      "n": 236
+    }
+  ],
+  "top_familias": [
+    {
+      "familia": "Oleaceae",
+      "n": 3222
+    },
+    {
+      "familia": "Fabaceae",
+      "n": 2914
+    },
+    {
+      "familia": "Anacardiaceae",
+      "n": 1788
+    },
+    {
+      "familia": "Sapindaceae",
+      "n": 1694
+    },
+    {
+      "familia": "Rosaceae",
+      "n": 1665
+    },
+    {
+      "familia": "Meliaceae",
+      "n": 1171
+    },
+    {
+      "familia": "Salicaceae",
+      "n": 368
+    },
+    {
+      "familia": "Altingiaceae",
+      "n": 364
+    },
+    {
+      "familia": "Scrophulariaceae",
+      "n": 295
+    },
+    {
+      "familia": "Rutaceae",
+      "n": 246
+    }
+  ],
+  "origen": {
+    "nativa": 2255,
+    "introducida": 9395,
+    "ornamental": 4411,
+    "sin_dato": 1118
+  },
+  "altura_dist": [
+    {
+      "label": "0–3 m",
+      "n": 4517
+    },
+    {
+      "label": "3–6 m",
+      "n": 6948
+    },
+    {
+      "label": "6–9 m",
+      "n": 3319
+    },
+    {
+      "label": "9–12 m",
+      "n": 1029
+    },
+    {
+      "label": "12–15 m",
+      "n": 456
+    },
+    {
+      "label": ">15 m",
+      "n": 196
+    }
+  ],
+  "dap_dist": [
+    {
+      "label": "0–10",
+      "n": 1382
+    },
+    {
+      "label": "10–20",
+      "n": 1945
+    },
+    {
+      "label": "20–30",
+      "n": 1598
+    },
+    {
+      "label": "30–40",
+      "n": 1063
+    },
+    {
+      "label": "40–60",
+      "n": 569
+    },
+    {
+      "label": ">60",
+      "n": 153
+    }
+  ],
+  "calidad_detalle": {
+    "conCoord": 17179,
+    "sinCoord": 0,
+    "coordFueraArea": 0,
+    "conEspecie": 17179,
+    "sinEspecie": 0,
+    "identificadas": 16061,
+    "noIdentificadas": 1118,
+    "conDap": 6710,
+    "conAltura": 16465,
+    "duplicadas": 376
+  }
+}

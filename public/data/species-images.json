@@ -1,0 +1,992 @@
+{
+ "robinia": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Robinia-pseudoacacia.JPG?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Robinia-pseudoacacia.JPG?width=420",
+  "page": "https://es.wikipedia.org/wiki/Robinia_pseudoacacia",
+  "autor": "Autor no especificado",
+  "licencia": "CC BY-SA 3.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Robinia pseudoacacia"
+ },
+ "pimiento": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Schinus_molle01.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Schinus_molle01.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Schinus_molle",
+  "autor": "Georges Jansoone",
+  "licencia": "CC BY 2.5",
+  "fuente": "Wikimedia Commons",
+  "match": "Schinus molle"
+ },
+ "ligustro": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/LigustrumLucidumFlowers.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/LigustrumLucidumFlowers.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Ligustrum_lucidum",
+  "autor": "Taken by Fanghong",
+  "licencia": "CC BY-SA 3.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Ligustrum lucidum"
+ },
+ "jacaranda": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Jacaranda1212.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Jacaranda1212.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Jacaranda_mimosifolia",
+  "autor": "Kahuroa",
+  "licencia": "Public domain",
+  "fuente": "Wikimedia Commons",
+  "match": "Jacaranda mimosifolia"
+ },
+ "ailanthus": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Ailanthus_altissima_Arg.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Ailanthus_altissima_Arg.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Ailanthus_altissima",
+  "autor": "Marina Torres",
+  "licencia": "Public domain",
+  "fuente": "Wikimedia Commons",
+  "match": "Ailanthus altissima"
+ },
+ "limonero": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Citrus_x_limon_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-041.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Citrus_x_limon_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-041.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Citrus_%C3%97_limon",
+  "autor": "Franz Eugen Köhler, Köhler's Medizinal-Pflanzen",
+  "licencia": "Public domain",
+  "fuente": "Wikimedia Commons",
+  "match": "Citrus limon"
+ },
+ "sophora": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Pagoda_tree_(Sophora_japonica)_at_Sentjur_train_station.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Pagoda_tree_(Sophora_japonica)_at_Sentjur_train_station.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Styphnolobium_japonicum",
+  "autor": "Ajznponar",
+  "licencia": "CC BY-SA 3.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Styphnolobium japonicum"
+ },
+ "pitosporo": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Pittosporum-tobira-frutos-nuevos.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Pittosporum-tobira-frutos-nuevos.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Pittosporum_tobira",
+  "autor": "Luis Fernández García",
+  "licencia": "CC BY-SA 2.5 es",
+  "fuente": "Wikimedia Commons",
+  "match": "Pittosporum tobira"
+ },
+ "olivo": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Oliveira_(Olea_europaea)_na_Pra%C3%A7a_da_Esta%C3%A7%C3%A3o%2C_Bag%C3%A9%2C_RS%2C_Brasil_(8160_x_6120px).jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Oliveira_(Olea_europaea)_na_Pra%C3%A7a_da_Esta%C3%A7%C3%A3o%2C_Bag%C3%A9%2C_RS%2C_Brasil_(8160_x_6120px).jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Olea_europaea",
+  "autor": "Gabriel Collares",
+  "licencia": "CC BY 4.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Olea europaea"
+ },
+ "crespon": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Extremosa_(Lagerstroemia_indica)_em_um_fim_de_tarde_em_Bag%C3%A9-RS.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Extremosa_(Lagerstroemia_indica)_em_um_fim_de_tarde_em_Bag%C3%A9-RS.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Lagerstroemia_indica",
+  "autor": "Gabriel Collares",
+  "licencia": "CC BY 4.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Lagerstroemia indica"
+ },
+ "palto": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Persea_americana1.JPG?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Persea_americana1.JPG?width=420",
+  "page": "https://es.wikipedia.org/wiki/Persea_americana",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Persea americana"
+ },
+ "palmera-washingtonia": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Washingtonia_Robusta_Gaziantep_TurkeyIMG_0202.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Washingtonia_Robusta_Gaziantep_TurkeyIMG_0202.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Washingtonia_robusta",
+  "autor": "Ygmr01",
+  "licencia": "CC BY 4.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Washingtonia robusta"
+ },
+ "albaricoque": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Turkey_apricot_RHS.jpeg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Turkey_apricot_RHS.jpeg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Prunus_armeniaca",
+  "autor": "BernardM",
+  "licencia": "Public domain",
+  "fuente": "Wikimedia Commons",
+  "match": "Prunus armeniaca"
+ },
+ "sauco": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Sambucus_nigra_004.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Sambucus_nigra_004.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Sambucus_nigra",
+  "autor": "Willow",
+  "licencia": "CC BY 2.5",
+  "fuente": "Wikimedia Commons",
+  "match": "Sambucus nigra"
+ },
+ "araucaria-excelsa": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Flickr_-_brewbooks_-_Cable_Bay%2C_NZ_-_Norfolk_Pine.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Flickr_-_brewbooks_-_Cable_Bay%2C_NZ_-_Norfolk_Pine.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Araucaria_heterophylla",
+  "autor": "brewbooks from near Seattle, USA",
+  "licencia": "CC BY-SA 2.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Araucaria heterophylla"
+ },
+ "feijoa": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Goiaba-serrana%2C_ou_guarobi_(do_guarani_'fruto_verde')%2C_Feijoa_sellowiana%2C_em_Bag%C3%A9%2C_RS%2C_Brasil_-_55238473195.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Goiaba-serrana%2C_ou_guarobi_(do_guarani_'fruto_verde')%2C_Feijoa_sellowiana%2C_em_Bag%C3%A9%2C_RS%2C_Brasil_-_55238473195.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Acca_sellowiana",
+  "autor": "Gabriel Collares",
+  "licencia": "CC BY 4.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Acca sellowiana"
+ },
+ "canelo": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Drimys_winteri-canelo_joven.JPG?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Drimys_winteri-canelo_joven.JPG?width=420",
+  "page": "https://es.wikipedia.org/wiki/Drimys_winteri",
+  "autor": "Constanza Andrade",
+  "licencia": "CC BY-SA 3.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Drimys winteri"
+ },
+ "fagus": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Illustration_Fagus_sylvatica0.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Illustration_Fagus_sylvatica0.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Fagus_sylvatica",
+  "autor": "Autor no especificado",
+  "licencia": "Public domain",
+  "fuente": "Wikimedia Commons",
+  "match": "Fagus sylvatica"
+ },
+ "roble": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Crooked_branches_of_Quercus_robur.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Crooked_branches_of_Quercus_robur.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Quercus_robur",
+  "autor": "Stefanst at English Wikipedia",
+  "licencia": "CC BY 2.5",
+  "fuente": "Wikimedia Commons",
+  "match": "Quercus robur"
+ },
+ "fresno": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Ash_Tree_-_geograph.org.uk_-_590710.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Ash_Tree_-_geograph.org.uk_-_590710.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Fraxinus_excelsior",
+  "autor": "Brian Green",
+  "licencia": "CC BY-SA 2.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Fraxinus excelsior"
+ },
+ "melia": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Cinamomo_(Melia_azedarach)_em_Bag%C3%A9%2C_RS%2C_Brasil%2C_final_de_outono%2C_frutificado_e_com_folhas_j%C3%A1_ca%C3%ADdas.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Cinamomo_(Melia_azedarach)_em_Bag%C3%A9%2C_RS%2C_Brasil%2C_final_de_outono%2C_frutificado_e_com_folhas_j%C3%A1_ca%C3%ADdas.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Melia_azedarach",
+  "autor": "O Tupinólogo",
+  "licencia": "CC BY 4.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Melia azedarach"
+ },
+ "ciruelo": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Prunus_cerasifera%2C_var_atropurpurea.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Prunus_cerasifera%2C_var_atropurpurea.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Prunus_cerasifera",
+  "autor": "Autor no especificado",
+  "licencia": "CC BY 2.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Prunus cerasifera"
+ },
+ "liquidambar": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Liquid%C3%A2mbar_(Liquidambar_styraciflua)%2C_no_dia_12_de_maio%2C_em_Bag%C3%A9%2C_RS%2C_Brasil.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Liquid%C3%A2mbar_(Liquidambar_styraciflua)%2C_no_dia_12_de_maio%2C_em_Bag%C3%A9%2C_RS%2C_Brasil.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Liquidambar_styraciflua",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Liquidambar styraciflua"
+ },
+ "mioporo": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Myoporum_laetum.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Myoporum_laetum.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Myoporum_laetum",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Myoporum laetum"
+ },
+ "quillay": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Quillaja_Mol.JPG?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Quillaja_Mol.JPG?width=420",
+  "page": "https://es.wikipedia.org/wiki/Quillaja_saponaria",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Quillaja saponaria"
+ },
+ "brachichiton": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Ejemplar_de_Brachychiton_populneus_en_el_Carrer_de_Fontanella%2C_Barcelona.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Ejemplar_de_Brachychiton_populneus_en_el_Carrer_de_Fontanella%2C_Barcelona.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Brachychiton_populneus",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Brachychiton populneus"
+ },
+ "vilca": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Acacia-visco.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Acacia-visco.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Acacia_visco",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Acacia visco"
+ },
+ "alamo-blanco": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Populus_alba_01.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Populus_alba_01.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Populus_alba",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Populus alba"
+ },
+ "aromo": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Acacia_dealbata_tree_2.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Acacia_dealbata_tree_2.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Acacia_dealbata",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Acacia dealbata"
+ },
+ "parkinsonia": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Parkinsonia_aculeata_4.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Parkinsonia_aculeata_4.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Parkinsonia_aculeata",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Parkinsonia aculeata"
+ },
+ "morera": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Morus-alba.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Morus-alba.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Morus_alba",
+  "autor": "GerardM",
+  "licencia": "CC BY-SA 2.1 es",
+  "fuente": "Wikimedia Commons",
+  "match": "Morus alba"
+ },
+ "olivo-de-bohemia": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Elaeagnus_angustifolia_20050608_852.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Elaeagnus_angustifolia_20050608_852.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Elaeagnus_angustifolia",
+  "autor": "Georg Slickers",
+  "licencia": "CC BY-SA 3.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Elaeagnus angustifolia"
+ },
+ "acacia-dealbata": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Acacia_dealbata_tree_2.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Acacia_dealbata_tree_2.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Acacia_dealbata",
+  "autor": "original photo: Certo Xornal from Ribeira, Galicia, España derivative work: Berichard",
+  "licencia": "CC BY 2.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Acacia dealbata"
+ },
+ "manzano": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Lob_Korocha1.JPG?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Lob_Korocha1.JPG?width=420",
+  "page": "https://es.wikipedia.org/wiki/Malus_domestica",
+  "autor": "Лобачев Владимир",
+  "licencia": "CC BY-SA 3.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Malus domestica"
+ },
+ "gleditsia": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Gleditsia_triacanthos01.JPEG?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Gleditsia_triacanthos01.JPEG?width=420",
+  "page": "https://es.wikipedia.org/wiki/Gleditsia_triacanthos",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Gleditsia triacanthos"
+ },
+ "ciruelo-en-flor": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Prunus_cerasifera%2C_var_atropurpurea.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Prunus_cerasifera%2C_var_atropurpurea.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Prunus_cerasifera",
+  "autor": "Autor no especificado",
+  "licencia": "CC BY 2.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Prunus cerasifera"
+ },
+ "albizia": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Bl%C3%A4tter_und_Bl%C3%BCten_Seidenbaum.JPG?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Bl%C3%A4tter_und_Bl%C3%BCten_Seidenbaum.JPG?width=420",
+  "page": "https://es.wikipedia.org/wiki/Albizia_julibrissin",
+  "autor": "4028mdk09",
+  "licencia": "CC BY-SA 3.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Albizia julibrissin"
+ },
+ "acacia-melanoxylon": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Acacia_melanoxylon_branch.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Acacia_melanoxylon_branch.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Acacia_melanoxylon",
+  "autor": "Júlio Reis (Tintazul)",
+  "licencia": "CC BY-SA 2.5",
+  "fuente": "Wikimedia Commons",
+  "match": "Acacia melanoxylon"
+ },
+ "damasco": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Turkey_apricot_RHS.jpeg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Turkey_apricot_RHS.jpeg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Prunus_armeniaca",
+  "autor": "BernardM",
+  "licencia": "Public domain",
+  "fuente": "Wikimedia Commons",
+  "match": "Prunus armeniaca"
+ },
+ "laurel": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Loureiro%2C_Laurus_nobilis.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Loureiro%2C_Laurus_nobilis.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Laurus_nobilis",
+  "autor": "Gabriel Collares",
+  "licencia": "CC BY 4.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Laurus nobilis"
+ },
+ "casuarina": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Casuarina_cunninghamiana_growing_next_to_the_Wollundry_Lagoon_(3).jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Casuarina_cunninghamiana_growing_next_to_the_Wollundry_Lagoon_(3).jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Casuarina_cunninghamiana",
+  "autor": "Bidgee",
+  "licencia": "CC BY-SA 2.5 au",
+  "fuente": "Wikimedia Commons",
+  "match": "Casuarina cunninghamiana"
+ },
+ "nispero": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Eriobotrya_japonica_SZ97.png?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Eriobotrya_japonica_SZ97.png?width=420",
+  "page": "https://es.wikipedia.org/wiki/Eriobotrya_japonica",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Eriobotrya japonica"
+ },
+ "bauhinia": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Flor_de_pata-de-vaca%2C_ou_moror%C3%B3_(do_tupi_*moror%C3%B3).jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Flor_de_pata-de-vaca%2C_ou_moror%C3%B3_(do_tupi_*moror%C3%B3).jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Bauhinia_forficata",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Bauhinia forficata"
+ },
+ "higuera": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Illustration_Ficus_carica0_clean.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Illustration_Ficus_carica0_clean.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Ficus_carica",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Ficus carica"
+ },
+ "araucaria": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Araucaria_en_Parque_Nacional_Conguillio.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Araucaria_en_Parque_Nacional_Conguillio.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Araucaria_araucana",
+  "autor": "Vicente Fernández Rioja",
+  "licencia": "CC BY-SA 4.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Araucaria araucana"
+ },
+ "pata-de-vaca": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Flor_de_pata-de-vaca%2C_ou_moror%C3%B3_(do_tupi_*moror%C3%B3).jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Flor_de_pata-de-vaca%2C_ou_moror%C3%B3_(do_tupi_*moror%C3%B3).jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Bauhinia_forficata",
+  "autor": "Gabriel Collares",
+  "licencia": "CC BY 4.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Bauhinia forficata"
+ },
+ "almendro": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Urue%C3%B1a_almendro1_lou.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Urue%C3%B1a_almendro1_lou.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Prunus_dulcis",
+  "autor": "Autor no especificado",
+  "licencia": "CC BY-SA 3.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Prunus dulcis"
+ },
+ "platano-oriental": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Fruits_of_Platanus_orientalis.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Fruits_of_Platanus_orientalis.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Platanus_orientalis",
+  "autor": "Samuli Lintula",
+  "licencia": "Public domain",
+  "fuente": "Wikimedia Commons",
+  "match": "Platanus orientalis"
+ },
+ "catalpa": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Indian_bean_tree1.JPG?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Indian_bean_tree1.JPG?width=420",
+  "page": "https://es.wikipedia.org/wiki/Catalpa_bignonioides",
+  "autor": "Autor no especificado",
+  "licencia": "Public domain",
+  "fuente": "Wikimedia Commons",
+  "match": "Catalpa bignonioides"
+ },
+ "palmera-phoenix": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Palmera001.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Palmera001.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Phoenix_canariensis",
+  "autor": "Jose Mesa (Mataparda) from island of Tenerife, Canary Islands, Spain",
+  "licencia": "CC BY-SA 2.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Phoenix canariensis"
+ },
+ "ligustrina": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Ligustrum_sinense_1.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Ligustrum_sinense_1.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Ligustrum_sinense",
+  "autor": "John Tann from Sydney, Australia",
+  "licencia": "CC BY 2.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Ligustrum sinense"
+ },
+ "granado-en-flor": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Illustration_Punica_granatum1.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Illustration_Punica_granatum1.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Punica_granatum",
+  "autor": "Autor no especificado",
+  "licencia": "Public domain",
+  "fuente": "Wikimedia Commons",
+  "match": "Punica granatum"
+ },
+ "visco": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Acacia-visco.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Acacia-visco.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Acacia_visco",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Acacia visco"
+ },
+ "membrillo": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Cydonia_oblonga_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-049.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Cydonia_oblonga_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-049.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Cydonia_oblonga",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Cydonia oblonga"
+ },
+ "gomero": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Ficus_elastica_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-206.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Ficus_elastica_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-206.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Ficus_elastica",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Ficus elastica"
+ },
+ "manzano-de-flor": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Malus_floribunda_(Japanese_crabapple).jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Malus_floribunda_(Japanese_crabapple).jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Malus_floribunda",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Malus floribunda"
+ },
+ "magnolio": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/T2_65_Magnolia_grandiflora_par_Pierre-Joseph_Redout%C3%A9.jpeg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/T2_65_Magnolia_grandiflora_par_Pierre-Joseph_Redout%C3%A9.jpeg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Magnolia_grandiflora",
+  "autor": "Pierre-Joseph Redouté",
+  "licencia": "Public domain",
+  "fuente": "Wikimedia Commons",
+  "match": "Magnolia grandiflora"
+ },
+ "aromo-australiano": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Acacia_melanoxylon_branch.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Acacia_melanoxylon_branch.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Acacia_melanoxylon",
+  "autor": "Júlio Reis (Tintazul)",
+  "licencia": "CC BY-SA 2.5",
+  "fuente": "Wikimedia Commons",
+  "match": "Acacia melanoxylon"
+ },
+ "nogal": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/20110802Walnussbaum_Plankstadt2.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/20110802Walnussbaum_Plankstadt2.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Juglans_regia",
+  "autor": "AnRo0002",
+  "licencia": "CC0",
+  "fuente": "Wikimedia Commons",
+  "match": "Juglans regia"
+ },
+ "erithryna-umbrosa": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Corticeira_em_Bag%C3%A9_04.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Corticeira_em_Bag%C3%A9_04.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Erythrina_crista-galli",
+  "autor": "O Tupinólogo",
+  "licencia": "CC BY 4.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Erythrina crista-galli"
+ },
+ "matico": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Buddleja_matico_recht.JPG?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Buddleja_matico_recht.JPG?width=420",
+  "page": "https://es.wikipedia.org/wiki/Buddleja_globosa",
+  "autor": "Penarc",
+  "licencia": "CC BY-SA 4.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Buddleja globosa"
+ },
+ "acer-palmatum": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Acer_palmatum0.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Acer_palmatum0.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Acer_palmatum",
+  "autor": "Kurt Stüber [1]",
+  "licencia": "CC BY-SA 3.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Acer palmatum"
+ },
+ "castano": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Hann._M%C3%BCnden_-_Bl%C3%BChende_Rosskastanie_auf_dem_Tanzwerder.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Hann._M%C3%BCnden_-_Bl%C3%BChende_Rosskastanie_auf_dem_Tanzwerder.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Aesculus_hippocastanum",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Aesculus hippocastanum"
+ },
+ "ginkgo-biloba": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Ginkgo_Biloba_Leaves_-_Black_Background.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Ginkgo_Biloba_Leaves_-_Black_Background.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Ginkgo_biloba",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Ginkgo biloba"
+ },
+ "encino": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Carrasca_de_la_Raboseras.JPG?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Carrasca_de_la_Raboseras.JPG?width=420",
+  "page": "https://es.wikipedia.org/wiki/Quercus_ilex",
+  "autor": "Picamaderos",
+  "licencia": "CC BY-SA 3.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Quercus ilex"
+ },
+ "palqui": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Cestrum_parqui.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Cestrum_parqui.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Cestrum_parqui",
+  "autor": "You may select the license of your choice.",
+  "licencia": "CC BY-SA 4.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Cestrum parqui"
+ },
+ "guindo": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Prunus_cerasus_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-113.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Prunus_cerasus_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-113.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Prunus_cerasus",
+  "autor": "Franz Eugen Köhler, Köhler's Medizinal-Pflanzen",
+  "licencia": "Public domain",
+  "fuente": "Wikimedia Commons",
+  "match": "Prunus cerasus"
+ },
+ "ceibo": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Corticeira_em_Bag%C3%A9_04.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Corticeira_em_Bag%C3%A9_04.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Erythrina_crista-galli",
+  "autor": "O Tupinólogo",
+  "licencia": "CC BY 4.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Erythrina crista-galli"
+ },
+ "huingan": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Schinus_polygamus_HRM.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Schinus_polygamus_HRM.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Schinus_polygamus",
+  "autor": "Cillas",
+  "licencia": "CC BY-SA 4.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Schinus polygamus"
+ },
+ "prunus-rosado": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Prunus_cerasifera%2C_var_atropurpurea.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Prunus_cerasifera%2C_var_atropurpurea.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Prunus_cerasifera",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Prunus cerasifera"
+ },
+ "peral": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Illustration_Pyrus_communis0.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Illustration_Pyrus_communis0.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Pyrus_communis",
+  "autor": "Autor no especificado",
+  "licencia": "Public domain",
+  "fuente": "Wikimedia Commons",
+  "match": "Pyrus communis"
+ },
+ "acacia-saligna": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Acacia_saligna(01).jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Acacia_saligna(01).jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Acacia_saligna",
+  "autor": "Autor no especificado",
+  "licencia": "CC BY-SA 3.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Acacia saligna"
+ },
+ "mandarina": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Mandarins_-_whole_and_halved.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Mandarins_-_whole_and_halved.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Citrus_reticulata",
+  "autor": "Ivar Leidus",
+  "licencia": "CC BY-SA 4.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Citrus reticulata"
+ },
+ "maqui": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Maqui_chileno.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Maqui_chileno.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Aristotelia_chilensis",
+  "autor": "Morrana",
+  "licencia": "CC BY-SA 4.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Aristotelia chilensis"
+ },
+ "acer-pseudoplatanus": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Acer_pseudoplatanus_Sturm07017.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Acer_pseudoplatanus_Sturm07017.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Acer_pseudoplatanus",
+  "autor": "Johann Georg Sturm (Painter: Jacob Sturm)",
+  "licencia": "Public domain",
+  "fuente": "Wikimedia Commons",
+  "match": "Acer pseudoplatanus"
+ },
+ "granado": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Illustration_Punica_granatum1.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Illustration_Punica_granatum1.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Punica_granatum",
+  "autor": "Autor no especificado",
+  "licencia": "Public domain",
+  "fuente": "Wikimedia Commons",
+  "match": "Punica granatum"
+ },
+ "boldo": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Peumus_boldus_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-104.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Peumus_boldus_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-104.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Peumus_boldus",
+  "autor": "Franz Eugen Köhler, Köhler's Medizinal-Pflanzen",
+  "licencia": "Public domain",
+  "fuente": "Wikimedia Commons",
+  "match": "Peumus boldus"
+ },
+ "celtis-australis": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Illustration_Celtis_australis1.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Illustration_Celtis_australis1.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Celtis_australis",
+  "autor": "Prof. Dr. Otto Wilhelm Thomé",
+  "licencia": "Public domain",
+  "fuente": "Wikimedia Commons",
+  "match": "Celtis australis"
+ },
+ "palma-canaria": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Palmera001.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Palmera001.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Phoenix_canariensis",
+  "autor": "Jose Mesa (Mataparda) from island of Tenerife, Canary Islands, Spain",
+  "licencia": "CC BY-SA 2.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Phoenix canariensis"
+ },
+ "cerezo": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Prunus_avium_fruit.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Prunus_avium_fruit.jpg?width=420",
+  "page": "https://en.wikipedia.org/wiki/Prunus_avium",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Prunus avium"
+ },
+ "palo-colorado": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/US_199_Redwood_Highway.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/US_199_Redwood_Highway.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Sequoia_sempervirens",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Sequoia sempervirens"
+ },
+ "bauhinia-forficata": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Flor_de_pata-de-vaca%2C_ou_moror%C3%B3_(do_tupi_*moror%C3%B3).jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Flor_de_pata-de-vaca%2C_ou_moror%C3%B3_(do_tupi_*moror%C3%B3).jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Bauhinia_forficata",
+  "autor": "Gabriel Collares",
+  "licencia": "CC BY 4.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Bauhinia forficata"
+ },
+ "sauce-cabruno": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/20140302Salix_caprea14.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/20140302Salix_caprea14.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Salix_caprea",
+  "autor": "AnRo0002",
+  "licencia": "CC0",
+  "fuente": "Wikimedia Commons",
+  "match": "Salix caprea"
+ },
+ "acer-tataricum": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Acer_tataricum0.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Acer_tataricum0.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Acer_tataricum",
+  "autor": "Kurt Stüber [1]",
+  "licencia": "CC BY-SA 3.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Acer tataricum"
+ },
+ "grevillea": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Grevillea_robusta-1.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Grevillea_robusta-1.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Grevillea_robusta",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Grevillea robusta"
+ },
+ "espino": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Acaciacaven29.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Acaciacaven29.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Vachellia_caven",
+  "autor": "Penarc",
+  "licencia": "Public domain",
+  "fuente": "Wikimedia Commons",
+  "match": "Vachellia caven"
+ },
+ "peumo": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Cryptocarya.PNG?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Cryptocarya.PNG?width=420",
+  "page": "https://es.wikipedia.org/wiki/Cryptocarya_alba",
+  "autor": "Penarc",
+  "licencia": "CC BY-SA 3.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Cryptocarya alba"
+ },
+ "acacio-japones": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Pagoda_tree_(Sophora_japonica)_at_Sentjur_train_station.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Pagoda_tree_(Sophora_japonica)_at_Sentjur_train_station.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Styphnolobium_japonicum",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Styphnolobium japonicum"
+ },
+ "litre": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Lithrea_caustica.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Lithrea_caustica.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Lithraea_caustica",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Lithraea caustica"
+ },
+ "acer-japonicum": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Acer_japonicum_aconitifolium_fall_color.JPG?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Acer_japonicum_aconitifolium_fall_color.JPG?width=420",
+  "page": "https://es.wikipedia.org/wiki/Acer_japonicum",
+  "autor": "User:SB_Johnny",
+  "licencia": "CC BY-SA 3.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Acer japonicum"
+ },
+ "ombu": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Umbu_(do_tupi_umbu%2C_com_outro_significado)%2C_Phytolacca_dioica%2C_em_Bag%C3%A9%2C_RS%2C_Brasil.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Umbu_(do_tupi_umbu%2C_com_outro_significado)%2C_Phytolacca_dioica%2C_em_Bag%C3%A9%2C_RS%2C_Brasil.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Phytolacca_dioica",
+  "autor": "Gabriel Collares",
+  "licencia": "CC BY 4.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Phytolacca dioica"
+ },
+ "arrayan": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Luma_apiculata_2019.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Luma_apiculata_2019.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Luma_apiculata",
+  "autor": "Aeveraal",
+  "licencia": "CC BY-SA 4.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Luma apiculata"
+ },
+ "crataegus": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Crataegus_monogyna_-_Common_hawthorn.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Crataegus_monogyna_-_Common_hawthorn.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Crataegus_monogyna",
+  "autor": "Autor no especificado",
+  "licencia": "CC BY-SA 3.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Crataegus monogyna"
+ },
+ "hibisco": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Cayena_(Hibiscus_rosa-sinensis)%2C_jard%C3%ADn_del_molino%2C_Sierra_de_San_Felipe%2C_Set%C3%BAbal%2C_Portugal%2C_2012-05-11%2C_DD_02.JPG?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Cayena_(Hibiscus_rosa-sinensis)%2C_jard%C3%ADn_del_molino%2C_Sierra_de_San_Felipe%2C_Set%C3%BAbal%2C_Portugal%2C_2012-05-11%2C_DD_02.JPG?width=420",
+  "page": "https://es.wikipedia.org/wiki/Hibiscus_rosa-sinensis",
+  "autor": "Diego Delso",
+  "licencia": "CC BY-SA 3.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Hibiscus rosa-sinensis"
+ },
+ "lila": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Vulgaris1b.UME.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Vulgaris1b.UME.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Syringa_vulgaris",
+  "autor": "Ulf Eliasson",
+  "licencia": "CC BY 2.5",
+  "fuente": "Wikimedia Commons",
+  "match": "Syringa vulgaris"
+ },
+ "caqui": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/DiospyrosKaki.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/DiospyrosKaki.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Diospyros_kaki",
+  "autor": "Photo taken by Fanghong",
+  "licencia": "CC BY-SA 3.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Diospyros kaki"
+ },
+ "clementina": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Clementines_whole%2C_peeled%2C_half_and_sectioned.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Clementines_whole%2C_peeled%2C_half_and_sectioned.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Citrus_x_clementina",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Citrus clementina"
+ },
+ "cercis-silicuastrum": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Cercis_siliquastrum_a1.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Cercis_siliquastrum_a1.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Cercis_siliquastrum",
+  "autor": "Jerzy Opioła",
+  "licencia": "CC BY-SA 4.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Cercis siliquastrum"
+ },
+ "ulmus-minor": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Blismes_elm_2007.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Blismes_elm_2007.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Ulmus_minor",
+  "autor": "Eric Collin. Original uploader was Ptelea at en.wikipedia",
+  "licencia": "GFDL",
+  "fuente": "Wikimedia Commons",
+  "match": "Ulmus minor"
+ },
+ "koelreuteria": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/(MHNT)_Koelreuteria_paniculata_-Leaves_and_inflorescences_-_Palais_Niel.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/(MHNT)_Koelreuteria_paniculata_-Leaves_and_inflorescences_-_Palais_Niel.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Koelreuteria_paniculata",
+  "autor": "Didier Descouens",
+  "licencia": "CC BY-SA 4.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Koelreuteria paniculata"
+ },
+ "laurel-de-flor": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Nerium_oleander_flowers_leaves.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Nerium_oleander_flowers_leaves.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Nerium_oleander",
+  "autor": "Alvesgaspar",
+  "licencia": "CC BY 2.5",
+  "fuente": "Wikimedia Commons",
+  "match": "Nerium oleander"
+ },
+ "koelreuteria-paniculata": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/(MHNT)_Koelreuteria_paniculata_-Leaves_and_inflorescences_-_Palais_Niel.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/(MHNT)_Koelreuteria_paniculata_-Leaves_and_inflorescences_-_Palais_Niel.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Koelreuteria_paniculata",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Koelreuteria paniculata"
+ },
+ "algarrobo": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Prosopis_chilensis.JPG?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Prosopis_chilensis.JPG?width=420",
+  "page": "https://es.wikipedia.org/wiki/Prosopis_chilensis",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Prosopis chilensis"
+ },
+ "ricino": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Ricinus_March_2010-1.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Ricinus_March_2010-1.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Ricinus_communis",
+  "autor": "Alvesgaspar",
+  "licencia": "CC BY-SA 3.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Ricinus"
+ },
+ "alamo-negro": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Populus_nigra_kz1.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Populus_nigra_kz1.jpg?width=420",
+  "page": "https://en.wikipedia.org/wiki/Populus_nigra",
+  "autor": "Autor no especificado",
+  "licencia": "Ver Wikimedia Commons",
+  "fuente": "Wikimedia Commons",
+  "match": "Populus nigra"
+ },
+ "lingue": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Persea_lingue.JPG?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Persea_lingue.JPG?width=420",
+  "page": "https://es.wikipedia.org/wiki/Persea_lingue",
+  "autor": "User:Daga",
+  "licencia": "CC BY-SA 3.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Persea lingue"
+ },
+ "tulipero": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Liriodendron_tulipifera1.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Liriodendron_tulipifera1.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Liriodendron_tulipifera",
+  "autor": "Kurt Stüber [1]",
+  "licencia": "CC BY-SA 3.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Liriodendron tulipifera"
+ },
+ "duraznero": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Prunus-persica_Color-variation.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Prunus-persica_Color-variation.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Prunus_persica",
+  "autor": "MaedaAkihiko",
+  "licencia": "CC BY-SA 4.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Prunus persica"
+ },
+ "maiten": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Mait%C3%A9n.JPG?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Mait%C3%A9n.JPG?width=420",
+  "page": "https://es.wikipedia.org/wiki/Maytenus_boaria",
+  "autor": "No machine-readable author provided. Roblespepe assumed (based on copyright claims).",
+  "licencia": "Public domain",
+  "fuente": "Wikimedia Commons",
+  "match": "Maytenus boaria"
+ },
+ "macrocarpa": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Lone_Cypress_17-Mile_Drive_2013.jpg?width=700",
+  "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/Lone_Cypress_17-Mile_Drive_2013.jpg?width=420",
+  "page": "https://es.wikipedia.org/wiki/Cupressus_macrocarpa",
+  "autor": "Tuxyso",
+  "licencia": "CC BY-SA 3.0",
+  "fuente": "Wikimedia Commons",
+  "match": "Cupressus macrocarpa"
+ }
+}

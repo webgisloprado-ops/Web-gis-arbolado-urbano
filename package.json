@@ -1,0 +1,16 @@
+{
+  "name": "sistema-arbolado-urbano",
+  "version": "1.0.0",
+  "description": "Plataforma GIS de gestión, análisis y consulta ciudadana del arbolado urbano.",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node server.mjs",
+    "datos": "node scripts/generar-datos.mjs",
+    "datos:custom": "node scripts/generar-datos.mjs",
+    "imagenes": "node scripts/obtener-imagenes.mjs"
+  },
+  "keywords": ["gis", "webgis", "arbolado", "urban-forestry", "leaflet", "inventario"],
+  "license": "MIT",
+  "engines": { "node": ">=18" }
+}
