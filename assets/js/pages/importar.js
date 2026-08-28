@@ -5,8 +5,7 @@ import { el, esc, fmt, toast } from '../util.js';
 import { parseUploaded, autoMap } from '../data.js';
 import { pageHeader } from '../ui.js';
 import { footer } from './home.js';
-import { bulkImportArboles, isConfigured } from '../db.js';
-import { currentUser } from '../firebase.js';
+import { bulkImportArboles, isConfigured, currentUser } from '../backend.js';
 
 const STEPS = ['Subir archivo', 'Analizar', 'Mapear columnas', 'Validar', 'Importar'];
 

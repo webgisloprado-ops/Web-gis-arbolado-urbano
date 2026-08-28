@@ -1,16 +1,14 @@
 // ============================================================================
 // data.js — carga y modelo de datos (geometría + especies + estadísticas)
 // ----------------------------------------------------------------------------
-// Origen de datos con prioridad:
-//   1. Snapshot publicado en Firebase Storage (si Firebase está configurado y
-//      ya se publicó el catastro desde el panel admin).
+// Origen de datos con prioridad (lo decide backend.js):
+//   1. Snapshot publicado (Vercel Blob o Firebase Storage), si hay backend.
 //   2. Datos estáticos en public/data/ (fallback siempre disponible).
-// La forma de los datos es idéntica en ambos casos, así que las vistas no
+// La forma de los datos es idéntica en todos los casos, así que las vistas no
 // cambian según el origen.
 // ============================================================================
 import { slugify } from './util.js';
-import { initFirebase } from './firebase.js';
-import { SNAPSHOT_PATHS } from './db.js';
+import { snapshotSources } from './backend.js';
 
 const state = {
   loaded: false,
@@ -24,22 +22,6 @@ const state = {
 };
 
 let _loadPromise = null;
-
-// Intenta resolver las URLs del snapshot en Storage; null si no hay/está sin publicar.
-async function snapshotSources() {
-  const f = await initFirebase();
-  if (!f.configured) return null;
-  try {
-    const { ref, getDownloadURL } = f.storageApi;
-    const [trees, species, stats, meta] = await Promise.all([
-      getDownloadURL(ref(f.storage, SNAPSHOT_PATHS.trees)),
-      getDownloadURL(ref(f.storage, SNAPSHOT_PATHS.species)),
-      getDownloadURL(ref(f.storage, SNAPSHOT_PATHS.stats)),
-      getDownloadURL(ref(f.storage, SNAPSHOT_PATHS.meta)).catch(() => null),
-    ]);
-    return { trees, species, stats, meta, origen: 'firebase' };
-  } catch { return null; }   // aún no se ha publicado → fallback estático
-}
 
 export function loadData() {
   if (_loadPromise) return _loadPromise;

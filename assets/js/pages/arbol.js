@@ -3,7 +3,7 @@
 // ============================================================================
 import { el, esc, fmt, fmtNum, ICON, toast, makeQR, store } from '../util.js';
 import { getTreeById, getSpeciesBySlug } from '../data.js';
-import { crearReporte, isConfigured } from '../db.js';
+import { crearReporte, isConfigured } from '../backend.js';
 import { renderImage, shareTree } from '../ui.js';
 import { TreeMap } from '../map.js';
 import { footer } from './home.js';

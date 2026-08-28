@@ -78,8 +78,9 @@ export function docToFeature(d) {
   };
 }
 
-// Normaliza una fila importada (con el mapeo de columnas) a documento Firestore.
-export function rowToDoc(row, mapping, kind, idNum) {
+// Normaliza una fila importada (con el mapeo de columnas) a los campos comunes,
+// SIN asignar id ni código (los asigna cada backend). Compartido Firebase/Vercel.
+export function normalizeRow(row, mapping, kind) {
   let lat, lon, props;
   if (kind === 'geojson') {
     const c = row.geometry?.coordinates || [];
@@ -90,13 +91,11 @@ export function rowToDoc(row, mapping, kind, idNum) {
   const get = k => (mapping[k] != null ? props[mapping[k]] : undefined);
   const comun = (get('especie') ?? props.especie ?? '').toString().trim();
   const sci = (get('nombre_cientifico') ?? '').toString().trim();
-  const slug = slugify(comun || sci || 'sin-especie');
   const num = v => { const n = parseFloat(v); return Number.isFinite(n) ? n : null; };
   return {
-    id: idNum,
-    codigo: (get('codigo') || `ARB-${String(idNum).padStart(5, '0')}`).toString(),
+    codigo: (get('codigo') || '').toString().trim() || null,
     especieKey: (comun || 'SIN ESPECIE').toUpperCase(),
-    especieSlug: slug,
+    especieSlug: slugify(comun || sci || 'sin-especie'),
     nombreCientifico: sci || null,
     familia: (props.familia || props.fam || null),
     lat, lon,
@@ -110,6 +109,12 @@ export function rowToDoc(row, mapping, kind, idNum) {
     duplicado: false,
     identificada: !!(sci || comun),
   };
+}
+
+// Documento Firestore completo (con id y código por defecto).
+export function rowToDoc(row, mapping, kind, idNum) {
+  const base = normalizeRow(row, mapping, kind);
+  return { id: idNum, ...base, codigo: base.codigo || `ARB-${String(idNum).padStart(5, '0')}` };
 }
 
 // ===========================================================================
@@ -295,6 +300,14 @@ export async function listAuditoria(max = 100) {
   const { collection, query, orderBy, limit, getDocs } = f.firestore;
   const snap = await getDocs(query(collection(f.db, 'auditoria'), orderBy('fecha', 'desc'), limit(max)));
   return snap.docs.map(d => ({ _id: d.id, ...d.data() }));
+}
+
+// ---- Usuarios y roles ----
+export async function listUsuarios() {
+  const f = await fb();
+  const { collection, getDocs } = f.firestore;
+  const snap = await getDocs(collection(f.db, 'usuarios'));
+  return snap.docs.map(d => ({ uid: d.id, ...d.data() }));
 }
 
 // ===========================================================================
