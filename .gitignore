@@ -4,3 +4,8 @@ node_modules/
 *.log
 .vercel
 .claude/settings.local.json
+
+# Firebase — secretos que NO deben subirse al repositorio
+serviceAccount.json
+.firebase/
+firebase-debug.log

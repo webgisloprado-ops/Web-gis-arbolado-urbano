@@ -3,6 +3,7 @@
 // ============================================================================
 import { el, esc, fmt, fmtNum, ICON, toast, makeQR, store } from '../util.js';
 import { getTreeById, getSpeciesBySlug } from '../data.js';
+import { crearReporte, isConfigured } from '../db.js';
 import { renderImage, shareTree } from '../ui.js';
 import { TreeMap } from '../map.js';
 import { footer } from './home.js';
@@ -119,12 +120,20 @@ export function renderReportar(main, params) {
     el('label', { class: 'filter-title', style: 'margin-top:12px;display:block', text: 'Fotografía (opcional)' }), foto,
     ubic,
     el('div', { class: 'callout callout-blue', style: 'margin:8px 0 16px' }, [el('span', { class: 'ci', text: 'ℹ️' }), 'El reporte quedará pendiente de revisión por el equipo administrativo antes de publicarse.']),
-    el('button', { class: 'btn btn-primary btn-block', text: 'Enviar reporte', onclick: () => {
-      const reports = store.get('reportes', []);
-      reports.push({ id: Date.now(), arbol: f ? f.properties.codigo : null, tipo: tipo.value, comentario: coment.value, fecha: new Date().toISOString(), estado: 'pendiente' });
-      store.set('reportes', reports);
-      toast('Reporte enviado. Quedó pendiente de revisión.');
-      setTimeout(() => (location.hash = f ? `#/arbol/${params.id}` : '#/mapa'), 900);
+    el('button', { class: 'btn btn-primary btn-block', text: 'Enviar reporte', onclick: async e => {
+      const btn = e.currentTarget; btn.disabled = true; btn.textContent = 'Enviando…';
+      const compartirUbic = ubic.querySelector('input').checked;
+      const coords = (f && compartirUbic) ? f.geometry.coordinates : [null, null];
+      const payload = {
+        arbolId: f ? f.properties.id : null, arbolCodigo: f ? f.properties.codigo : null,
+        tipo: tipo.value, comentario: coment.value, lon: coords[0], lat: coords[1],
+      };
+      try {
+        if (await isConfigured()) await crearReporte(payload);
+        else { const r = store.get('reportes', []); r.push({ id: Date.now(), arbol: payload.arbolCodigo, tipo: payload.tipo, comentario: payload.comentario, fecha: new Date().toISOString(), estado: 'pendiente' }); store.set('reportes', r); }
+        toast('Reporte enviado. Quedó pendiente de revisión.');
+        setTimeout(() => (location.hash = f ? `#/arbol/${params.id}` : '#/mapa'), 900);
+      } catch (err) { toast('No se pudo enviar el reporte: ' + err.message); btn.disabled = false; btn.textContent = 'Enviar reporte'; }
     } }),
   );
   wrap.append(card);

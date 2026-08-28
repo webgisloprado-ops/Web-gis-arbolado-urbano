@@ -1,0 +1,35 @@
+rules_version = '2';
+// ============================================================================
+// Reglas de Firebase Storage — Sistema de Arbolado Urbano
+// ----------------------------------------------------------------------------
+// /publico  → snapshot que consume la vista pública: lectura pública, escritura
+//             solo para roles con permiso (admin/gis).
+// /imagenes → fotografías de especies/individuos: lectura pública, escritura
+//             para roles con permiso, con límite de tamaño y tipo de archivo.
+// ============================================================================
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function rol() {
+      return request.auth != null
+        ? firestore.get(/databases/(default)/documents/usuarios/$(request.auth.uid)).data.rol
+        : 'anon';
+    }
+    function puedePublicar() { return rol() in ['admin', 'gis']; }
+    function puedeEscribir() { return rol() in ['admin', 'gis', 'editor']; }
+
+    // Snapshot publicado (trees.geojson / species.json / stats.json / meta.json).
+    match /publico/{archivo=**} {
+      allow read:  if true;
+      allow write: if puedePublicar();
+    }
+
+    // Fotografías subidas por el admin (imágenes de especies / individuos).
+    match /imagenes/{archivo=**} {
+      allow read:  if true;
+      allow write: if puedeEscribir()
+        && request.resource.size < 8 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+  }
+}

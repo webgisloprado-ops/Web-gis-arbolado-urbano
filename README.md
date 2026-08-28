@@ -124,17 +124,38 @@ npm run imagenes
 
 ---
 
+## ☁️ Base de datos: Firebase (Firestore + Auth + Storage)
+
+La plataforma usa **Firebase** como backend, con una arquitectura de **snapshot** que
+mantiene la vista pública rápida y barata aunque el catastro crezca:
+
+- **Firestore = fuente de la verdad**: árboles, especies, reportes, usuarios y auditoría.
+  Cada cambio queda con **trazabilidad** (quién y cuándo) y el borrado es **lógico**
+  (recuperable, nunca físico).
+- **Vista pública = snapshot publicado**: el mapa, el catálogo y las estadísticas leen un
+  archivo publicado en Storage (`/publico/*.json`), no 17.000 documentos por visita.
+- **Panel admin** (`#/admin`): login seguro (Firebase Auth) con **roles**
+  (admin · técnico GIS · editor · consulta), CRUD de árboles y especies, gestión de
+  imágenes, revisión de reportes ciudadanos, auditoría y botón **Publicar snapshot**.
+- **Importación masiva**: el asistente guarda miles de árboles en Firestore por **lotes**
+  (sin trabar el navegador), con barra de progreso.
+
+> **Sin configurar Firebase la web sigue funcionando** con los datos estáticos de
+> `public/data/` (modo demostración, claramente etiquetado). Firebase se activa al crear
+> `assets/js/firebase-config.js`.
+
+👉 **Guía de conexión paso a paso: [`docs/FIREBASE.md`](docs/FIREBASE.md)** — crear el
+proyecto, migrar los datos (`npm run seed`) y desplegar las reglas de seguridad.
+
 ## ⚠️ Honestidad técnica
 
-Esta entrega es una **aplicación WebGIS funcional de front-end** sobre datos reales, no una
-maqueta. Lo que **no** está en línea en esta versión (y por qué) se detalla con su solución en
-[`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md):
+Lo que **no** está en línea en esta versión (y por qué), con su solución documentada:
 
-- **PostgreSQL + PostGIS, API REST y autenticación de servidor** → diseñados; aquí la persistencia
-  administrativa usa almacenamiento local del navegador, claramente indicado.
 - **Procesamiento genérico de `.aprx`/`.gpkg` en línea** → requiere GDAL/ogr2ogr en servidor; el
   asistente lo explica y no simula que funciona.
 - **Generación de imágenes por IA** → requiere una clave de proveedor; se deja como capa preparada.
+- **Alternativa PostgreSQL + PostGIS** → sigue documentada en [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md)
+  como camino de migración equivalente al de Firebase.
 
 Cuando existe una limitación, se muestra explícitamente en la interfaz en vez de ocultarla.
 

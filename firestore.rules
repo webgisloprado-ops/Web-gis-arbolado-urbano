@@ -1,0 +1,72 @@
+rules_version = '2';
+// ============================================================================
+// Reglas de seguridad de Firestore — Sistema de Arbolado Urbano
+// ----------------------------------------------------------------------------
+// Modelo: la VISTA PÚBLICA lee el snapshot publicado en Storage (no Firestore),
+// así que Firestore solo lo consume el PANEL ADMIN autenticado. Los permisos de
+// escritura dependen del ROL guardado en usuarios/{uid}.rol.
+//   admin   → todo
+//   gis     → importar y editar árboles/especies + publicar
+//   editor  → editar registros
+//   consulta→ solo lectura
+// El borrado es LÓGICO (campo eliminado); no se permite borrado físico.
+// ============================================================================
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function auth()       { return request.auth != null; }
+    function rol()        { return auth() ? get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol : 'anon'; }
+    function esAdmin()    { return auth() && rol() == 'admin'; }
+    function puedeEscribir() { return auth() && rol() in ['admin', 'gis', 'editor']; }
+    // Trazabilidad obligatoria en cada escritura.
+    function conSello()   { return request.resource.data.modificadoPor is string; }
+
+    // ---- Árboles (individuos) ----
+    match /arboles/{id} {
+      allow read:   if auth();                 // el snapshot público NO usa esto
+      allow create: if puedeEscribir() && conSello()
+                       && request.resource.data.eliminado == false;
+      allow update: if puedeEscribir() && conSello();
+      allow delete: if false;                  // nunca borrado físico → usar eliminado:true
+    }
+
+    // ---- Especies (biblioteca botánica) ----
+    match /especies/{slug} {
+      allow read:   if auth();
+      allow create, update: if puedeEscribir() && conSello();
+      allow delete: if false;
+    }
+
+    // ---- Metadatos / estado de publicación ----
+    match /meta/{id} {
+      allow read:   if true;
+      allow write:  if puedeEscribir();
+    }
+
+    // ---- Reportes ciudadanos ----
+    // Cualquiera crea un reporte pendiente; solo el admin/editor lo revisa.
+    match /reportes/{id} {
+      allow create: if request.resource.data.estado == 'pendiente'
+                       && request.resource.data.tipo is string
+                       && request.resource.data.tipo.size() < 80
+                       && request.resource.data.comentario is string
+                       && request.resource.data.comentario.size() < 2000;
+      allow read, update: if puedeEscribir();
+      allow delete: if false;
+    }
+
+    // ---- Usuarios y roles ----
+    // Cada usuario puede leer su propio doc (para conocer su rol); el admin gestiona todos.
+    match /usuarios/{uid} {
+      allow read:  if auth() && (request.auth.uid == uid || esAdmin());
+      allow write: if esAdmin();
+    }
+
+    // ---- Auditoría (append-only) ----
+    match /auditoria/{id} {
+      allow create: if puedeEscribir();
+      allow read:   if esAdmin();
+      allow update, delete: if false;          // registro inmutable
+    }
+  }
+}

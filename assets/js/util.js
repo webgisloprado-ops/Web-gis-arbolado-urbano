@@ -68,8 +68,9 @@ export const store = {
 // ============================================================================
 export function speciesImage(sp, { size = 'card' } = {}) {
   // 1) Imagen aportada por el administrador (máxima prioridad).
-  const overrides = store.get('img-overrides', {});
-  const ov = overrides[sp.slug];
+  //    En modo Firebase viene en el documento de la especie (sp.imagenAdmin);
+  //    en modo estático, del override guardado en localStorage.
+  const ov = (sp.imagenAdmin && sp.imagenAdmin.url) ? sp.imagenAdmin : store.get('img-overrides', {})[sp.slug];
   if (ov && ov.url) return { type: 'img', src: ov.url, source: { ...ov, kind: 'usuario' } };
   // 2) Fotografía real de Wikimedia Commons asociada por nombre científico.
   if (sp.foto && sp.foto.url) {

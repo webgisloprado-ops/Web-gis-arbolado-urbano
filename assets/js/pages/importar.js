@@ -5,6 +5,8 @@ import { el, esc, fmt, toast } from '../util.js';
 import { parseUploaded, autoMap } from '../data.js';
 import { pageHeader } from '../ui.js';
 import { footer } from './home.js';
+import { bulkImportArboles, isConfigured } from '../db.js';
+import { currentUser } from '../firebase.js';
 
 const STEPS = ['Subir archivo', 'Analizar', 'Mapear columnas', 'Validar', 'Importar'];
 
@@ -210,15 +212,43 @@ function step5(body, ctx, next) {
   table.append(tb);
   body.append(el('div', { style: 'overflow-x:auto' }, [table]));
 
-  body.append(el('div', { class: 'callout callout-blue', style: 'margin:16px 0' }, [
-    el('span', { class: 'ci', text: 'ℹ️' }),
-    'En esta versión el asistente valida y previsualiza en el navegador. La persistencia definitiva (PostGIS), la generación/actualización de especies y la asociación de imágenes se realizan en el backend documentado (endpoint POST /api/import).',
-  ]));
-  const btn = el('button', { class: 'btn btn-primary btn-block', html: '<svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Confirmar importación', onclick: () => {
+  const progress = el('div', { style: 'margin:16px 0' });
+  const btn = el('button', { class: 'btn btn-primary btn-block', html: '<svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Confirmar importación', onclick: async () => {
+    const configured = await isConfigured();
+    const user = configured ? await currentUser() : null;
+    if (configured && !user) { toast('Inicia sesión en el panel de administración para importar.'); location.hash = '#/admin'; return; }
+    if (!configured) {
+      btn.disabled = true; btn.textContent = 'Validando…';
+      setTimeout(() => { toast(`Validación completada: ${fmt(ctx.validCount)} árboles. Conecta Firebase para persistir.`); btn.innerHTML = '✓ Validación completada'; }, 700);
+      return;
+    }
     btn.disabled = true; btn.textContent = 'Importando…';
-    setTimeout(() => { toast(`Importación validada: ${fmt(ctx.validCount)} árboles listos para publicar.`); btn.innerHTML = '✓ Validación completada'; }, 900);
+    const rows = ctx.parsed.kind === 'geojson' ? ctx.parsed.features : ctx.parsed.rows;
+    const bar = el('div', { class: 'progress-track', style: 'height:10px;background:var(--brand-soft);border-radius:99px;overflow:hidden' }, [
+      el('div', { class: 'progress-fill', style: 'height:100%;width:0;background:var(--brand);transition:width .2s' }),
+    ]);
+    const label = el('div', { class: 'muted', style: 'font-size:.86rem;margin-top:8px', text: 'Preparando lotes…' });
+    progress.innerHTML = ''; progress.append(bar, label);
+    try {
+      const res = await bulkImportArboles(rows, ctx.mapping, ctx.parsed.kind, {
+        onProgress: ({ done, total, written, skipped }) => {
+          bar.firstChild.style.width = `${Math.round(done / total * 100)}%`;
+          label.textContent = `${fmt(done)} / ${fmt(total)} procesados · ${fmt(written)} importados · ${fmt(skipped)} omitidos`;
+        },
+      });
+      bar.firstChild.style.width = '100%';
+      label.innerHTML = `<strong>Importación completada.</strong> ${fmt(res.written)} árboles guardados en Firestore, ${fmt(res.skipped)} omitidos por coordenadas inválidas.`;
+      btn.innerHTML = '✓ Importado';
+      body.append(el('div', { class: 'callout callout-green', style: 'margin-top:14px' }, [
+        el('span', { class: 'ci', text: '✓' }),
+        el('div', {}, ['Los datos están en Firestore. Ve a ', el('a', { href: '#/admin/resumen', text: 'Admin → Resumen' }), ' y pulsa ', el('strong', { text: 'Publicar snapshot' }), ' para que aparezcan en la vista pública.']),
+      ]));
+    } catch (err) {
+      label.innerHTML = `<span style="color:var(--red-500)">Error al importar: ${esc(err.message)}</span>`;
+      btn.disabled = false; btn.innerHTML = 'Reintentar importación';
+    }
   } });
-  body.append(btn);
+  body.append(progress, btn);
   body.append(el('div', { style: 'text-align:center;margin-top:12px' }, [el('button', { class: 'btn btn-ghost btn-sm', text: '← Volver', onclick: () => next(3) })]));
 }
 

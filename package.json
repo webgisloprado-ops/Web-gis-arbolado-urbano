@@ -8,7 +8,12 @@
     "dev": "node server.mjs",
     "datos": "node scripts/generar-datos.mjs",
     "datos:custom": "node scripts/generar-datos.mjs",
-    "imagenes": "node scripts/obtener-imagenes.mjs"
+    "imagenes": "node scripts/obtener-imagenes.mjs",
+    "seed": "node scripts/seed-firestore.mjs",
+    "deploy:rules": "firebase deploy --only firestore:rules,storage"
+  },
+  "devDependencies": {
+    "firebase-admin": "^12.0.0"
   },
   "keywords": ["gis", "webgis", "arbolado", "urban-forestry", "leaflet", "inventario"],
   "license": "MIT",

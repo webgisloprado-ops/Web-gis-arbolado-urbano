@@ -1,34 +1,71 @@
 // ============================================================================
 // data.js — carga y modelo de datos (geometría + especies + estadísticas)
+// ----------------------------------------------------------------------------
+// Origen de datos con prioridad:
+//   1. Snapshot publicado en Firebase Storage (si Firebase está configurado y
+//      ya se publicó el catastro desde el panel admin).
+//   2. Datos estáticos en public/data/ (fallback siempre disponible).
+// La forma de los datos es idéntica en ambos casos, así que las vistas no
+// cambian según el origen.
 // ============================================================================
 import { slugify } from './util.js';
+import { initFirebase } from './firebase.js';
+import { SNAPSHOT_PATHS } from './db.js';
 
 const state = {
   loaded: false,
-  trees: [],          // features del GeoJSON (properties + coords)
-  species: [],        // catálogo de especies
+  origen: 'estatico',  // 'firebase' | 'estatico'
+  trees: [],           // features del GeoJSON (properties + coords)
+  species: [],         // catálogo de especies
   speciesBySlug: new Map(),
   stats: null,
   meta: null,
+  images: {},
 };
 
 let _loadPromise = null;
 
+// Intenta resolver las URLs del snapshot en Storage; null si no hay/está sin publicar.
+async function snapshotSources() {
+  const f = await initFirebase();
+  if (!f.configured) return null;
+  try {
+    const { ref, getDownloadURL } = f.storageApi;
+    const [trees, species, stats, meta] = await Promise.all([
+      getDownloadURL(ref(f.storage, SNAPSHOT_PATHS.trees)),
+      getDownloadURL(ref(f.storage, SNAPSHOT_PATHS.species)),
+      getDownloadURL(ref(f.storage, SNAPSHOT_PATHS.stats)),
+      getDownloadURL(ref(f.storage, SNAPSHOT_PATHS.meta)).catch(() => null),
+    ]);
+    return { trees, species, stats, meta, origen: 'firebase' };
+  } catch { return null; }   // aún no se ha publicado → fallback estático
+}
+
 export function loadData() {
   if (_loadPromise) return _loadPromise;
   _loadPromise = (async () => {
+    const remote = await snapshotSources();
+    const src = remote || {
+      trees: 'public/data/trees.geojson',
+      species: 'public/data/species.json',
+      stats: 'public/data/stats.json',
+      meta: 'public/data/meta.json',
+      origen: 'estatico',
+    };
     const [g, sp, st, mt, imgs] = await Promise.all([
-      fetch('public/data/trees.geojson').then(r => r.json()),
-      fetch('public/data/species.json').then(r => r.json()),
-      fetch('public/data/stats.json').then(r => r.json()),
-      fetch('public/data/meta.json').then(r => r.json()).catch(() => null),
+      fetch(src.trees).then(r => r.json()),
+      fetch(src.species).then(r => r.json()),
+      fetch(src.stats).then(r => r.json()),
+      src.meta ? fetch(src.meta).then(r => r.json()).catch(() => null) : Promise.resolve(null),
       fetch('public/data/species-images.json').then(r => r.json()).catch(() => ({})),
     ]);
+    state.origen = src.origen;
     state.trees = g.features;
     state.species = sp;
     state.stats = st;
     state.meta = mt;
     state.images = imgs || {};
+    state.speciesBySlug.clear();
     for (const s of sp) {
       s.foto = state.images[s.slug] || null;   // fotografía real (Wikimedia) si existe
       state.speciesBySlug.set(s.slug, s);
@@ -38,6 +75,9 @@ export function loadData() {
   })();
   return _loadPromise;
 }
+
+// Fuerza recargar los datos (p. ej. tras publicar un nuevo snapshot).
+export function reloadData() { _loadPromise = null; return loadData(); }
 
 export const getState = () => state;
 export const getStats = () => state.stats;
