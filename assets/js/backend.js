@@ -1,12 +1,11 @@
 // ============================================================================
 // backend.js — facade que selecciona el backend de datos y expone una interfaz
 // única a las vistas. Detección automática por prioridad:
-//   1. Firebase    (Firestore + Auth + Storage)   → si hay firebase-config.js válido
+//   1. Firebase    (Firestore + Auth, plan gratuito) → si hay firebase-config.js válido
 //   2. Estático    (datos/*)                       → fallback de solo lectura
 // Las páginas importan SIEMPRE desde aquí, no de db.js/firebase.js directamente.
 // ============================================================================
 import * as fbData from './db.js';
-import { SNAPSHOT_PATHS, SNAPSHOT_MARK } from './db.js';
 import { login as fbLogin, logout as fbLogout, currentUser as fbUser, getUserRole as fbRole, initFirebase } from './firebase.js';
 
 let _backend = null;
@@ -58,29 +57,26 @@ export const listUsuarios = () => fbData.listUsuarios();
 export const publishSnapshot = o => fbData.publishSnapshot(o);
 export const snapshotURL = w => fbData.snapshotURL(w);
 
+// ---- Catastro base ----
+export const estadoCargaBase = () => fbData.estadoCargaBase();
+export const cargarCatastroBase = o => fbData.cargarCatastroBase(o);
+
 // Fuentes del snapshot para la vista pública (o null → fallback estático).
-// Si Storage aún no está activado o no hay snapshot publicado, se usan los
-// datos estáticos de datos/ sin romper la vista pública.
+// Si no hay snapshot publicado o Firestore no responde a tiempo, se usan los
+// datos estáticos de datos/ sin romper la vista pública. El snapshot se
+// entrega como URLs blob locales para que data.js lo cargue igual que datos/.
 const conLimite = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
+const blobURL = obj => (obj ? URL.createObjectURL(new Blob([JSON.stringify(obj)], { type: 'application/json' })) : null);
 
 export async function snapshotSources() {
   if ((await getBackend()) !== 'firebase') return null;
   try {
-    return await conLimite((async () => {
-      const f = await initFirebase();
-      // 1) ¿Hay un snapshot publicado? (meta/publicacion es de lectura pública)
-      const { doc, getDoc } = f.firestore;
-      const marca = await getDoc(doc(f.db, 'meta', SNAPSHOT_MARK));
-      if (!marca.exists() || !marca.data().publicado) return null;
-      // 2) URLs de descarga del snapshot en Storage.
-      const { ref, getDownloadURL } = f.storageApi;
-      const [trees, species, stats, meta] = await Promise.all([
-        getDownloadURL(ref(f.storage, SNAPSHOT_PATHS.trees)),
-        getDownloadURL(ref(f.storage, SNAPSHOT_PATHS.species)),
-        getDownloadURL(ref(f.storage, SNAPSHOT_PATHS.stats)),
-        getDownloadURL(ref(f.storage, SNAPSHOT_PATHS.meta)).catch(() => null),
-      ]);
-      return { trees, species, stats, meta, origen: 'firebase' };
-    })(), 5000);
+    if (!(await conLimite(fbData.haySnapshot(), 5000))) return null;
+    const snap = await conLimite(fbData.readSnapshot(), 30000);
+    if (!snap) return null;
+    return {
+      trees: blobURL(snap.trees), species: blobURL(snap.species),
+      stats: blobURL(snap.stats), meta: blobURL(snap.meta), origen: 'firebase',
+    };
   } catch { return null; }
 }

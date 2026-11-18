@@ -12,7 +12,6 @@
     "imagenes": "node scripts/obtener-imagenes.mjs",
     "seed": "node scripts/seed-firestore.mjs",
     "deploy:rules": "firebase deploy --only firestore",
-    "deploy:storage": "firebase deploy --only storage",
     "deploy:web": "vercel --prod"
   },
   "devDependencies": {

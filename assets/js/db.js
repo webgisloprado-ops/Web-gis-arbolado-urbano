@@ -1,10 +1,12 @@
 // ============================================================================
-// db.js — capa de acceso a datos sobre Firestore + Storage
+// db.js — capa de acceso a datos sobre Firestore (plan gratuito Spark)
 // ----------------------------------------------------------------------------
 // Firestore es la FUENTE DE LA VERDAD (árboles, especies, reportes, usuarios,
 // auditoría). La vista pública NO lee 17.000 documentos: lee un "snapshot"
-// publicado en Storage (trees.geojson / species.json / stats.json). El admin
-// edita en vivo y pulsa "Publicar" para regenerar ese snapshot.
+// publicado en la colección `snapshot` (JSON troceado en documentos < 1 MB).
+// El admin edita en vivo y pulsa "Publicar" para regenerar ese snapshot.
+// No se usa Cloud Storage (requiere plan de pago): las fotos de especies se
+// comprimen en el navegador y se guardan como data URL en Firestore.
 //
 // Todo cambio (alta/edición/borrado) queda con trazabilidad (quién y cuándo) y
 // escribe una entrada en la colección `auditoria`. El borrado es LÓGICO
@@ -13,15 +15,15 @@
 import { initFirebase, currentUser } from './firebase.js';
 import { slugify } from './util.js';
 
-// Rutas del snapshot publicado dentro de Storage.
-export const SNAPSHOT_PATHS = {
-  trees: 'publico/trees.geojson',
-  species: 'publico/species.json',
-  stats: 'publico/stats.json',
-  meta: 'publico/meta.json',
-};
+// Partes del snapshot publicado (colección `snapshot`).
+export const SNAPSHOT_NAMES = ['trees', 'species', 'stats', 'meta'];
+const SNAP_COL = 'snapshot';
+const SNAP_CHUNK = 250000;           // caracteres por documento (< 1 MiB aun con UTF-8 de 3 bytes)
+const MAX_IMG = 180000;              // tamaño máx. de una foto como data URL (~135 KB)
 // Documento meta/{SNAPSHOT_MARK} que indica que hay un snapshot publicado.
 export const SNAPSHOT_MARK = 'publicacion';
+// Documento meta/{CARGA_BASE} que indica que el catastro base ya se cargó.
+const CARGA_BASE = 'carga_base';
 
 const BATCH_SIZE = 450;              // < 500 operaciones por lote (límite Firestore)
 
@@ -250,15 +252,142 @@ export async function setEspecieImagen(slug, imagen) {
   await audit('especie', slug, imagen ? 'imagen-asignada' : 'imagen-restablecida', user, imagen);
 }
 
-// Sube un archivo de imagen a Storage y devuelve su URL pública.
-export async function uploadImagen(file, slug) {
+// Comprime una imagen en el navegador y la devuelve como data URL JPEG, lista
+// para guardarse en el documento de la especie (sin Cloud Storage).
+export async function uploadImagen(file) {
+  if (!/^image\//.test(file.type)) throw new Error('El archivo no es una imagen.');
+  const img = await new Promise((res, rej) => {
+    const u = URL.createObjectURL(file);
+    const i = new Image();
+    i.onload = () => { URL.revokeObjectURL(u); res(i); };
+    i.onerror = () => { URL.revokeObjectURL(u); rej(new Error('No se pudo leer la imagen.')); };
+    i.src = u;
+  });
+  let max = 1200, q = 0.82, url = '';
+  for (let t = 0; t < 10; t++) {
+    const k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(img.naturalWidth * k));
+    c.height = Math.max(1, Math.round(img.naturalHeight * k));
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    url = c.toDataURL('image/jpeg', q);
+    if (url.length <= MAX_IMG) break;
+    max = Math.round(max * 0.8); q = Math.max(0.5, q - 0.08);
+  }
+  if (url.length > MAX_IMG) throw new Error('La imagen es demasiado grande incluso comprimida.');
+  return { url, path: null };
+}
+
+// ===========================================================================
+// CARGA DEL CATASTRO BASE (datos/) A FIRESTORE — desde el panel, sin claves
+// ===========================================================================
+// Reanudable: si se corta (red, cuota diaria), al volver a pulsarla continúa
+// desde el siguiente id. ~17.300 escrituras en total (cuota gratuita: 20.000/día).
+export async function estadoCargaBase() {
   const f = await fb();
-  const { ref, uploadBytes, getDownloadURL } = f.storageApi;
-  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-  const path = `imagenes/especies/${slug}-${Date.now()}.${ext}`;
-  const r = ref(f.storage, path);
-  await uploadBytes(r, file, { contentType: file.type });
-  return { url: await getDownloadURL(r), path };
+  const { doc, getDoc } = f.firestore;
+  const s = await getDoc(doc(f.db, 'meta', CARGA_BASE));
+  return s.exists() ? s.data() : { completado: false };
+}
+
+export async function cargarCatastroBase({ onProgress } = {}) {
+  const f = await fb();
+  const user = await currentUser();
+  const { writeBatch, doc, setDoc, serverTimestamp } = f.firestore;
+  if ((await estadoCargaBase()).completado) throw new Error('El catastro base ya se cargó en Firestore.');
+
+  const [geo, species, imgs] = await Promise.all([
+    fetch('datos/trees.geojson').then(r => r.json()),
+    fetch('datos/species.json').then(r => r.json()),
+    fetch('datos/species-images.json').then(r => r.json()).catch(() => ({})),
+  ]);
+
+  // 1) Especies (pocas: se reescriben siempre, es idempotente).
+  let batch = writeBatch(f.db), n = 0;
+  for (const s of species) {
+    const slug = s.slug || slugify(s.comun || s.cientifico);
+    batch.set(doc(f.db, 'especies', slug), { ...s, slug, imagenWikimedia: imgs[slug] || null, ...stamp(f, user, { create: true }) });
+    if (++n % BATCH_SIZE === 0) { await batch.commit(); batch = writeBatch(f.db); }
+  }
+  await batch.commit();
+  onProgress && onProgress({ fase: 'especies', n: species.length });
+
+  // 2) Árboles, reanudando desde el siguiente id libre.
+  const desde = await nextArbolId();
+  const feats = geo.features.filter(ft => Number(ft.properties.id) >= desde);
+  const total = geo.features.length;
+  let hechos = total - feats.length;
+  for (let i = 0; i < feats.length; i += BATCH_SIZE) {
+    const b = writeBatch(f.db);
+    for (const ft of feats.slice(i, i + BATCH_SIZE)) {
+      const p = ft.properties;
+      const [lon, lat] = ft.geometry.coordinates;
+      b.set(doc(f.db, 'arboles', String(p.id)), {
+        id: p.id, codigo: p.codigo, especieKey: p.e, especieSlug: p.sp,
+        nombreCientifico: p.sci || null, familia: p.fam || null,
+        lat, lon, direccion: p.dir || null, sector: p.sec || null,
+        dap: p.dap ?? null, alturaTotal: p.hT ?? null, alturaCopa: p.hC ?? null,
+        fuente: p.fte || 'Catastro base', coordValida: p.ok !== false,
+        duplicado: !!p.dup, identificada: !!p.idf,
+        ...stamp(f, user, { create: true }),
+      });
+    }
+    await b.commit();
+    hechos += Math.min(BATCH_SIZE, feats.length - i);
+    onProgress && onProgress({ fase: 'arboles', n: hechos, total });
+    await yield_();
+  }
+
+  await setDoc(doc(f.db, 'meta', CARGA_BASE), {
+    completado: true, arboles: total, especies: species.length,
+    modificadoPor: user ? (user.email || user.uid) : 'admin', modificadoEn: serverTimestamp(),
+  });
+  await audit('arbol', '(catastro-base)', 'carga-base', user, { arboles: total, especies: species.length });
+  return { arboles: total, especies: species.length };
+}
+
+// ===========================================================================
+// SNAPSHOT EN FIRESTORE — JSON troceado en documentos < 1 MB
+// ===========================================================================
+async function putJSON(f, name, obj) {
+  const { doc, setDoc } = f.firestore;
+  const s = JSON.stringify(obj);
+  const partes = Math.max(1, Math.ceil(s.length / SNAP_CHUNK));
+  const version = Date.now();
+  for (let i = 0; i < partes; i++) {
+    await setDoc(doc(f.db, SNAP_COL, `${name}__${i}`), { version, i, data: s.slice(i * SNAP_CHUNK, (i + 1) * SNAP_CHUNK) });
+  }
+  await setDoc(doc(f.db, SNAP_COL, name), { partes, version, caracteres: s.length });
+}
+
+async function getJSON(f, name) {
+  const { doc, getDoc } = f.firestore;
+  const idx = await getDoc(doc(f.db, SNAP_COL, name));
+  if (!idx.exists()) return null;
+  const { partes, version } = idx.data();
+  const docs = await Promise.all(Array.from({ length: partes }, (_, i) => getDoc(doc(f.db, SNAP_COL, `${name}__${i}`))));
+  const s = docs.map(d => {
+    const x = d.data();
+    if (!x || x.version !== version) throw new Error('Snapshot incompleto (publicación en curso).');
+    return x.data;
+  }).join('');
+  return JSON.parse(s);
+}
+
+// ¿Hay un snapshot publicado? (meta/publicacion es de lectura pública)
+export async function haySnapshot() {
+  const f = await fb();
+  const { doc, getDoc } = f.firestore;
+  const s = await getDoc(doc(f.db, 'meta', SNAPSHOT_MARK));
+  return s.exists() && !!s.data().publicado;
+}
+
+// Lee el snapshot publicado: { trees, species, stats, meta } o null.
+export async function readSnapshot() {
+  const f = await fb();
+  const [trees, species, stats, meta] = await Promise.all(SNAPSHOT_NAMES.map(n => getJSON(f, n)));
+  if (!trees || !species || !stats) return null;
+  return { trees, species, stats, meta };
 }
 
 // ===========================================================================
@@ -340,9 +469,13 @@ export async function publishSnapshot({ onProgress } = {}) {
     await yield_();
   }
 
-  // 2) Leer especies vivas.
+  // Nunca publicar un snapshot vacío: dejaría la vista pública sin árboles.
+  if (!features.length) throw new Error('Firestore no tiene árboles. Primero usa "Cargar catastro base" o importa datos.');
+
+  // 2) Leer especies vivas (sin campos de Firestore como Timestamps).
   const spSnap = await getDocs(query(collection(f.db, 'especies'), where('eliminado', '==', false)));
-  const species = spSnap.docs.map(d => d.data());
+  const LIMPIAR = ['creadoEn', 'modificadoEn', 'creadoPor', 'modificadoPor', 'version', 'eliminado'];
+  const species = spSnap.docs.map(d => { const o = { ...d.data() }; LIMPIAR.forEach(k => delete o[k]); return o; });
 
   // 3) Calcular estadísticas y metadatos.
   const stats = computeStats(features, species);
@@ -355,17 +488,12 @@ export async function publishSnapshot({ onProgress } = {}) {
     publicado_por: user ? (user.email || user.uid) : 'admin',
   };
 
-  // 4) Subir a Storage.
-  const { ref, uploadString } = f.storageApi;
-  const put = (path, obj) => uploadString(ref(f.storage, path), JSON.stringify(obj),
-    'raw', { contentType: 'application/json; charset=utf-8', cacheControl: 'public,max-age=300' });
+  // 4) Guardar el snapshot troceado en Firestore.
   onProgress && onProgress({ fase: 'subiendo' });
-  await Promise.all([
-    put(SNAPSHOT_PATHS.trees, { type: 'FeatureCollection', features }),
-    put(SNAPSHOT_PATHS.species, species),
-    put(SNAPSHOT_PATHS.stats, stats),
-    put(SNAPSHOT_PATHS.meta, meta),
-  ]);
+  await putJSON(f, 'trees', { type: 'FeatureCollection', features });
+  await putJSON(f, 'species', species);
+  await putJSON(f, 'stats', stats);
+  await putJSON(f, 'meta', meta);
   // Marca pública (lectura libre en las reglas): la vista pública solo pide el
   // snapshot a Storage si existe esta marca; si no, usa los datos estáticos.
   await f.firestore.setDoc(f.firestore.doc(f.db, 'meta', SNAPSHOT_MARK), {
@@ -407,10 +535,11 @@ function computeStats(features, species) {
   };
 }
 
-// URL de descarga de un archivo del snapshot en Storage (o null si no existe).
+// URL (blob local) de una parte del snapshot publicado, o null si no existe.
 export async function snapshotURL(which) {
   try {
     const f = await fb();
-    return await f.storageApi.getDownloadURL(f.storageApi.ref(f.storage, SNAPSHOT_PATHS[which]));
+    const obj = await getJSON(f, which);
+    return obj ? URL.createObjectURL(new Blob([JSON.stringify(obj)], { type: 'application/json' })) : null;
   } catch { return null; }
 }

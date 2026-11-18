@@ -185,6 +185,35 @@ async function resumen(c) {
       : [el('strong', { text: 'Modo demostración local. ' }), 'No hay backend configurado; los datos provienen de los archivos estáticos. Sigue ', el('a', { href: '#/admin/resumen', text: 'docs/FIREBASE.md' }), ' para conectar la base de datos.']),
   ]));
 
+  // Carga inicial del catastro base (datos/) a Firestore — solo una vez.
+  if (_ctx.configured && esAdminPleno(_ctx.rol)) {
+    let estado = { completado: true };
+    try { estado = await db.estadoCargaBase(); } catch { /* sin permisos de lectura de meta */ }
+    if (!estado.completado) {
+      const box = el('div', { class: 'callout callout-blue', style: 'margin-top:24px;display:block' });
+      const status = el('div', { class: 'muted', style: 'font-size:.86rem;margin-top:8px' });
+      const btn = el('button', { class: 'btn btn-primary', style: 'margin-top:10px', text: '🌳 Cargar catastro base en Firestore', onclick: async () => {
+        btn.disabled = true; btn.textContent = 'Cargando…';
+        try {
+          const r = await db.cargarCatastroBase({ onProgress: p => {
+            status.textContent = p.fase === 'especies' ? `Especies cargadas: ${fmt(p.n)}` : `Árboles: ${fmt(p.n)} de ${fmt(p.total)}…`;
+          } });
+          status.innerHTML = `<span style="color:var(--green-600,#16a34a)">✓ Cargados ${fmt(r.arboles)} árboles y ${fmt(r.especies)} especies. Ahora pulsa "Publicar snapshot".</span>`;
+          btn.remove();
+        } catch (e) {
+          status.innerHTML = `<span style="color:var(--red-500)">Error: ${esc(e.message)}. Puedes volver a pulsar: continúa donde quedó.</span>`;
+          btn.disabled = false; btn.textContent = '🌳 Continuar carga del catastro base';
+        }
+      } });
+      box.append(
+        el('strong', { text: 'Firestore está vacío. ' }),
+        'Carga los 17.179 árboles y las especies del catastro base para poder editarlos aquí. Tarda unos minutos; no cierres la pestaña. Si se interrumpe, vuelve a pulsar y continúa donde quedó.',
+        el('div', {}, [btn]), status,
+      );
+      c.append(box);
+    }
+  }
+
   if (_ctx.configured && (esAdminPleno(_ctx.rol) || _ctx.rol === 'gis')) {
     c.append(el('h3', { style: 'margin-top:24px', text: 'Publicación' }));
     c.append(el('p', { class: 'muted', style: 'margin-top:4px', text: 'Regenera el snapshot público (mapa, catálogo y estadísticas) a partir del estado actual de Firestore. Hazlo después de importar o editar.' }));

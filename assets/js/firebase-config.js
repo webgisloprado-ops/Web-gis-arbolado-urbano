@@ -17,5 +17,6 @@ export const firebaseConfig = {
 // Correos autorizados a entrar al panel administrativo. Los permisos de
 // escritura los decide además el rol guardado en Firestore (usuarios/{uid}).
 export const ADMINS = [
+  "xavixaviel47@gmail.com",
   "webgisloprado@gmail.com",
 ];

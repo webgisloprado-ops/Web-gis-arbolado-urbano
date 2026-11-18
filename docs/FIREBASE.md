@@ -14,9 +14,17 @@ manteniendo la vista pública rápida mediante un *snapshot* publicado.
 | Proyecto Firebase | `web-gis-arbolado-urbano` (`.firebaserc`) |
 | App web + `firebase-config.js` | ✅ Creada y configurada |
 | Firestore | ✅ Creado en `southamerica-west1` (Santiago), reglas desplegadas |
-| Authentication | ⏳ Activar **Correo electrónico/contraseña** en la consola (paso 1) |
-| Storage | ⏳ Requiere activar Storage en la consola (plan Blaze) — sin él, la vista pública usa `datos/` |
-| Datos en Firestore | ⏳ `npm run seed -- --admin-email <correo>` (paso 4) |
+| Authentication | ✅ Correo/contraseña; admin inicial: xavixaviel47@gmail.com |
+| Índices compuestos | ✅ `firestore.indexes.json` desplegado |
+| Storage | ❌ No se usa (exige plan de pago). Snapshot y fotos van en Firestore |
+| Datos en Firestore | ⏳ Admin → Resumen → **Cargar catastro base**, luego **Publicar snapshot** |
+
+> **Plan gratuito (Spark).** Todo funciona sin tarjeta: Firestore + Auth.
+> El snapshot público se guarda troceado en la colección `snapshot` (~25 lecturas
+> por visita; la cuota gratuita es 50.000 lecturas/día) y las fotos de especies se
+> comprimen en el navegador (~135 KB) y se guardan en el documento de la especie.
+> La carga del catastro base usa ~17.300 escrituras (cuota: 20.000/día), así que
+> conviene hacerla un día sin otras importaciones grandes.
 
 ---
 
@@ -102,8 +110,7 @@ Necesitas una **clave de cuenta de servicio** (solo para la migración, en tu PC
 npm install -g firebase-tools     # una sola vez
 firebase login
 firebase use --add                # elige tu proyecto
-npm run deploy:rules              # despliega firestore.rules
-npm run deploy:storage            # despliega storage.rules (cuando Storage esté activo)
+npm run deploy:rules              # despliega firestore.rules + firestore.indexes.json
 ```
 
 ## 6. Probar

@@ -34,21 +34,21 @@ export function initFirebase() {
     if (!isConfigured(cfg)) return { configured: false, reason: 'config-incompleta' };
 
     try {
-      const [{ initializeApp }, firestore, auth, storage] = await Promise.all([
+      // Plan gratuito (Spark): solo Firestore + Auth. Las imágenes y el snapshot
+      // público también se guardan en Firestore (no se usa Cloud Storage).
+      const [{ initializeApp }, firestore, auth] = await Promise.all([
         import(`${SDK}/firebase-app.js`),
         import(`${SDK}/firebase-firestore.js`),
         import(`${SDK}/firebase-auth.js`),
-        import(`${SDK}/firebase-storage.js`),
       ]);
       const app = initializeApp(cfg);
       const db = firestore.getFirestore(app);
       const authInst = auth.getAuth(app);
-      const storageInst = storage.getStorage(app);
       return {
         configured: true,
-        app, db, auth: authInst, storage: storageInst, admins,
-        fb: { ...firestore, ...auth, ...storage }, // API modular reunida
-        firestore, authApi: auth, storageApi: storage,
+        app, db, auth: authInst, admins,
+        fb: { ...firestore, ...auth }, // API modular reunida
+        firestore, authApi: auth,
       };
     } catch (e) {
       console.error('Firebase init error:', e);
@@ -71,8 +71,21 @@ export async function login(email, password) {
   const f = await initFirebase();
   if (!f.configured) throw new Error('Firebase no está configurado.');
   const cred = await f.authApi.signInWithEmailAndPassword(f.auth, email, password);
-  const rol = await getUserRole(cred.user);
+  let rol = await getUserRole(cred.user, { soloFirestore: true });
   const emailOk = !f.admins.length || f.admins.map(a => a.toLowerCase()).includes((cred.user.email || '').toLowerCase());
+  // Primer ingreso de un administrador de la lista ADMINS: crea su documento de
+  // rol en usuarios/{uid}. Las reglas de Firestore solo lo permiten a los uid
+  // autorizados (ver firestore.rules → ADMIN_UIDS).
+  if (!rol && emailOk) {
+    try {
+      const { doc, setDoc, serverTimestamp } = f.firestore;
+      await setDoc(doc(f.db, 'usuarios', cred.user.uid), {
+        rol: 'admin', email: cred.user.email, nombre: cred.user.email,
+        estado: 'activo', creadoEn: serverTimestamp(),
+      });
+      rol = 'admin';
+    } catch (e) { console.warn('No se pudo crear el documento de rol:', e.message); }
+  }
   // Autorizado si está en la lista ADMINS o tiene un rol con permiso de escritura.
   const rolOk = ['admin', 'gis', 'editor'].includes(rol);
   if (!emailOk && !rolOk) {
@@ -83,7 +96,7 @@ export async function login(email, password) {
 }
 
 // Rol del usuario, leído de usuarios/{uid} en Firestore (admin|gis|editor|consulta).
-export async function getUserRole(user) {
+export async function getUserRole(user, { soloFirestore = false } = {}) {
   if (!user) return null;
   const f = await initFirebase();
   if (!f.configured) return null;
@@ -92,6 +105,7 @@ export async function getUserRole(user) {
     const s = await getDoc(doc(f.db, 'usuarios', user.uid));
     if (s.exists()) return s.data().rol || 'consulta';
   } catch { /* sin doc de rol → se decide por la lista ADMINS */ }
+  if (soloFirestore) return null;
   const inList = f.admins.map(a => a.toLowerCase()).includes((user.email || '').toLowerCase());
   return inList ? 'admin' : null;
 }

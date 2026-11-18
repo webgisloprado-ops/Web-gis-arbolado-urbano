@@ -2,8 +2,9 @@ rules_version = '2';
 // ============================================================================
 // Reglas de seguridad de Firestore — Sistema de Arbolado Urbano
 // ----------------------------------------------------------------------------
-// Modelo: la VISTA PÚBLICA lee el snapshot publicado en Storage (no Firestore),
-// así que Firestore solo lo consume el PANEL ADMIN autenticado. Los permisos de
+// Modelo: la VISTA PÚBLICA lee solo el snapshot publicado (colección snapshot,
+// lectura libre); el resto de Firestore lo consume el PANEL ADMIN autenticado.
+// Plan gratuito (Spark): no se usa Cloud Storage. Los permisos de
 // escritura dependen del ROL guardado en usuarios/{uid}.rol.
 //   admin   → todo
 //   gis     → importar y editar árboles/especies + publicar
@@ -18,6 +19,11 @@ service cloud.firestore {
     function rol()        { return auth() ? get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol : 'anon'; }
     function esAdmin()    { return auth() && rol() == 'admin'; }
     function puedeEscribir() { return auth() && rol() in ['admin', 'gis', 'editor']; }
+    function puedePublicar() { return auth() && rol() in ['admin', 'gis']; }
+    // Cuentas (uid de Authentication) que pueden auto-asignarse el rol admin en
+    // su primer ingreso. Para añadir otra, crea el usuario en Authentication y
+    // agrega aquí su uid (o asígnale el rol desde un admin existente).
+    function esAdminInicial(uid) { return uid in ['3y0wFL8RU9ShTiJrDpEyQPOocDO2']; }
     // Trazabilidad obligatoria en cada escritura.
     function conSello()   { return request.resource.data.modificadoPor is string; }
 
@@ -60,6 +66,15 @@ service cloud.firestore {
     match /usuarios/{uid} {
       allow read:  if auth() && (request.auth.uid == uid || esAdmin());
       allow write: if esAdmin();
+      // Primer ingreso de un administrador inicial: crea su propio doc de rol.
+      allow create: if auth() && request.auth.uid == uid && esAdminInicial(uid)
+                       && request.resource.data.rol == 'admin';
+    }
+
+    // ---- Snapshot público (JSON troceado; reemplaza a Cloud Storage) ----
+    match /snapshot/{id} {
+      allow read:  if true;
+      allow write: if puedePublicar();
     }
 
     // ---- Auditoría (append-only) ----

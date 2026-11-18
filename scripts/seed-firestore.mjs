@@ -3,7 +3,8 @@
 // ----------------------------------------------------------------------------
 // Carga datos/*.json en Firestore (colecciones arboles y especies) con
 // trazabilidad, asigna el rol de administrador a un usuario y sube el snapshot
-// inicial a Storage para que la vista pública funcione de inmediato.
+// inicial (colección `snapshot` de Firestore) para que la vista pública lo use.
+// Alternativa sin clave de servicio: Admin → Resumen → "Cargar catastro base".
 //
 // Requisitos:
 //   1. npm install firebase-admin
@@ -44,7 +45,6 @@ try {
 }
 const { initializeApp, cert, applicationDefault } = admin;
 const { getFirestore, FieldValue } = await import('firebase-admin/firestore');
-const { getStorage } = await import('firebase-admin/storage');
 
 // Credenciales.
 const saPath = process.env.GOOGLE_APPLICATION_CREDENTIALS || join(ROOT, 'serviceAccount.json');
@@ -64,8 +64,7 @@ if (existsSync(saPath)) {
 let webCfg = null;
 try { webCfg = (await import(new URL('../assets/js/firebase-config.js', import.meta.url).href)).firebaseConfig; } catch { /* sin config web */ }
 projectId = projectId || process.env.GOOGLE_CLOUD_PROJECT || webCfg?.projectId;
-const bucketName = process.env.STORAGE_BUCKET || webCfg?.storageBucket || (projectId ? `${projectId}.firebasestorage.app` : undefined);
-initializeApp({ credential, projectId, storageBucket: bucketName });
+initializeApp({ credential, projectId });
 const db = getFirestore();
 const now = FieldValue.serverTimestamp();
 
@@ -136,20 +135,22 @@ async function seedAdmin() {
   log(`✓ Rol de administrador asignado a ${adminEmail || uid}`);
 }
 
+// Snapshot público en Firestore (colección `snapshot`, JSON troceado < 1 MB),
+// mismo formato que publishSnapshot() del panel. Plan gratuito: sin Storage.
 async function subirSnapshot() {
-  if (!bucketName) { log('⚠ Sin bucket de Storage (define STORAGE_BUCKET); se omite el snapshot.'); return; }
-  const bucket = getStorage().bucket();
-  const files = [
-    ['trees.geojson', 'publico/trees.geojson', 'application/geo+json'],
-    ['species.json', 'publico/species.json', 'application/json'],
-    ['stats.json', 'publico/stats.json', 'application/json'],
-    ['meta.json', 'publico/meta.json', 'application/json'],
-  ];
-  for (const [local, dest, type] of files) {
+  const CHUNK = 250000;
+  const files = [['trees.geojson', 'trees'], ['species.json', 'species'], ['stats.json', 'stats'], ['meta.json', 'meta']];
+  for (const [local, name] of files) {
     const lp = join(DATA, local);
     if (!existsSync(lp)) continue;
-    await bucket.upload(lp, { destination: dest, metadata: { contentType: `${type}; charset=utf-8`, cacheControl: 'public,max-age=300' } });
-    log(`✓ Snapshot subido: ${dest}`);
+    const s = JSON.stringify(JSON.parse(readFileSync(lp, 'utf8')));
+    const partes = Math.max(1, Math.ceil(s.length / CHUNK));
+    const version = Date.now();
+    for (let i = 0; i < partes; i++) {
+      await db.collection('snapshot').doc(`${name}__${i}`).set({ version, i, data: s.slice(i * CHUNK, (i + 1) * CHUNK) });
+    }
+    await db.collection('snapshot').doc(name).set({ partes, version, caracteres: s.length });
+    log(`✓ Snapshot guardado: ${name} (${partes} partes)`);
   }
   // Marca de publicación: la vista pública solo usa Storage si existe.
   await db.collection('meta').doc('publicacion').set({ publicado: true, modificadoPor: 'seed', modificadoEn: now });
@@ -162,9 +163,10 @@ async function subirSnapshot() {
   if (soloSnapshot) { await subirSnapshot(); log('\nListo (solo snapshot).\n'); return; }
   await seedEspecies();
   await seedArboles();
+  await db.collection('meta').doc('carga_base').set({ completado: true, modificadoPor: 'seed', modificadoEn: now });
   await seedAdmin();
   if (!sinSnapshot) await subirSnapshot();
   log('\n✓ Migración completada.\n');
-  log('  Siguiente paso: despliega las reglas con  firebase deploy --only firestore:rules,storage\n');
+  log('  Siguiente paso: despliega las reglas con  npm run deploy:rules\n');
   process.exit(0);
 })().catch(e => { console.error('\n✗ Error en la migración:', e); process.exit(1); });
