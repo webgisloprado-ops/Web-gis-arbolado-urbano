@@ -349,15 +349,40 @@ export async function cargarCatastroBase({ onProgress } = {}) {
 // ===========================================================================
 // SNAPSHOT EN FIRESTORE — JSON troceado en documentos < 1 MB
 // ===========================================================================
-async function putJSON(f, name, obj) {
-  const { doc, setDoc } = f.firestore;
+// Escribe un JSON troceado en `col/{name}__{i}`; devuelve { partes, version }.
+// Borra las partes sobrantes de una versión anterior más larga.
+async function putChunks(f, col, name, obj, partesPrevias = 0, onProgress) {
+  const { doc, setDoc, deleteDoc } = f.firestore;
   const s = JSON.stringify(obj);
   const partes = Math.max(1, Math.ceil(s.length / SNAP_CHUNK));
   const version = Date.now();
   for (let i = 0; i < partes; i++) {
-    await setDoc(doc(f.db, SNAP_COL, `${name}__${i}`), { version, i, data: s.slice(i * SNAP_CHUNK, (i + 1) * SNAP_CHUNK) });
+    await setDoc(doc(f.db, col, `${name}__${i}`), { version, i, data: s.slice(i * SNAP_CHUNK, (i + 1) * SNAP_CHUNK) });
+    onProgress && onProgress({ parte: i + 1, partes });
   }
-  await setDoc(doc(f.db, SNAP_COL, name), { partes, version, caracteres: s.length });
+  for (let i = partes; i < partesPrevias; i++) {
+    try { await deleteDoc(doc(f.db, col, `${name}__${i}`)); } catch { /* sobrante: se ignora */ }
+  }
+  return { partes, version, caracteres: s.length };
+}
+
+// Lee un JSON troceado conociendo su número de partes y versión.
+async function getChunks(f, col, name, partes, version) {
+  const { doc, getDoc } = f.firestore;
+  const docs = await Promise.all(Array.from({ length: partes }, (_, i) => getDoc(doc(f.db, col, `${name}__${i}`))));
+  const s = docs.map(d => {
+    const x = d.data();
+    if (!x || x.version !== version) throw new Error('Datos incompletos (publicación en curso). Recarga en unos segundos.');
+    return x.data;
+  }).join('');
+  return JSON.parse(s);
+}
+
+async function putJSON(f, name, obj) {
+  const { doc, getDoc, setDoc } = f.firestore;
+  const prev = await getDoc(doc(f.db, SNAP_COL, name));
+  const r = await putChunks(f, SNAP_COL, name, obj, prev.exists() ? prev.data().partes : 0);
+  await setDoc(doc(f.db, SNAP_COL, name), r);
 }
 
 async function getJSON(f, name) {
@@ -365,13 +390,116 @@ async function getJSON(f, name) {
   const idx = await getDoc(doc(f.db, SNAP_COL, name));
   if (!idx.exists()) return null;
   const { partes, version } = idx.data();
-  const docs = await Promise.all(Array.from({ length: partes }, (_, i) => getDoc(doc(f.db, SNAP_COL, `${name}__${i}`))));
-  const s = docs.map(d => {
-    const x = d.data();
-    if (!x || x.version !== version) throw new Error('Snapshot incompleto (publicación en curso).');
-    return x.data;
-  }).join('');
-  return JSON.parse(s);
+  return getChunks(f, SNAP_COL, name, partes, version);
+}
+
+// ===========================================================================
+// CAPAS GIS — capas/{id} (metadatos) + capas_datos/{id}__{i} (GeoJSON troceado)
+// ===========================================================================
+// Lectura pública (el mapa las muestra a todos); escritura solo admin/superadmin.
+const CAPAS_DATOS = 'capas_datos';
+
+export async function listCapas() {
+  const f = await fb();
+  const { collection, query, where, getDocs } = f.firestore;
+  const snap = await getDocs(query(collection(f.db, 'capas'), where('eliminado', '==', false)));
+  return snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0) || String(a.nombre).localeCompare(b.nombre));
+}
+
+export async function getCapaGeoJSON(capa) {
+  const f = await fb();
+  return getChunks(f, CAPAS_DATOS, capa.id, capa.partes, capa.version);
+}
+
+// Tipo de geometría predominante de un conjunto de features.
+function tipoGeometria(features) {
+  const tipos = new Set(features.map(ft => (ft.geometry?.type || '').replace(/^Multi/, '')));
+  return tipos.size === 1 ? [...tipos][0] : 'Mixta';
+}
+
+// Guarda una capa. modo: 'nueva' | 'reemplazar' | 'agregar'.
+export async function guardarCapa({ modo, capaId, nombre, color, features, archivo }, { onProgress } = {}) {
+  const f = await fb();
+  const user = await currentUser();
+  const { doc, getDoc, setDoc, serverTimestamp } = f.firestore;
+  const quien = user ? (user.email || user.uid) : 'admin';
+  let meta = null, id = capaId;
+
+  if (modo === 'nueva') {
+    if (!nombre || !nombre.trim()) throw new Error('La capa necesita un nombre.');
+    id = `${slugify(nombre) || 'capa'}-${Date.now().toString(36)}`;
+  } else {
+    const s = await getDoc(doc(f.db, 'capas', id));
+    if (!s.exists() || s.data().eliminado) throw new Error('La capa seleccionada no existe.');
+    meta = s.data();
+  }
+
+  let todas = features;
+  if (modo === 'agregar') {
+    onProgress && onProgress({ fase: 'leyendo' });
+    const prev = await getChunks(f, CAPAS_DATOS, id, meta.partes, meta.version);
+    todas = [...(prev.features || []), ...features];
+  }
+  const campos = [...new Set(todas.slice(0, 500).flatMap(ft => Object.keys(ft.properties || {})))];
+  const r = await putChunks(f, CAPAS_DATOS, id, { type: 'FeatureCollection', features: todas }, meta?.partes || 0,
+    p => onProgress && onProgress({ fase: 'guardando', ...p }));
+
+  const datos = {
+    ...r, elementos: todas.length, geometria: tipoGeometria(todas), campos: campos.slice(0, 80),
+    archivo: archivo || meta?.archivo || null,
+    modificadoPor: quien, modificadoEn: serverTimestamp(),
+  };
+  if (modo === 'nueva') {
+    Object.assign(datos, {
+      nombre: nombre.trim(), color: color || '#2e7ab8', visible: true, orden: Date.now(),
+      creadoPor: quien, creadoEn: serverTimestamp(), eliminado: false,
+    });
+  }
+  await setDoc(doc(f.db, 'capas', id), datos, { merge: true });
+  await audit('capa', id, modo === 'nueva' ? 'alta' : modo, user, { elementos: features.length, total: todas.length, archivo: archivo || null });
+  return { id, elementos: todas.length, agregados: features.length };
+}
+
+export async function editarCapa(id, { nombre, color, visible }) {
+  const f = await fb();
+  const user = await currentUser();
+  const { doc, updateDoc, serverTimestamp } = f.firestore;
+  const datos = { modificadoPor: user ? (user.email || user.uid) : 'admin', modificadoEn: serverTimestamp() };
+  if (nombre != null) datos.nombre = String(nombre).trim();
+  if (color != null) datos.color = color;
+  if (visible != null) datos.visible = !!visible;
+  await updateDoc(doc(f.db, 'capas', id), datos);
+  await audit('capa', id, 'edicion', user, { nombre, color, visible });
+}
+
+export async function eliminarCapa(id) {
+  const f = await fb();
+  const user = await currentUser();
+  const { doc, updateDoc, serverTimestamp } = f.firestore;
+  await updateDoc(doc(f.db, 'capas', id), { eliminado: true, modificadoPor: user ? (user.email || user.uid) : 'admin', modificadoEn: serverTimestamp() });
+  await audit('capa', id, 'baja', user);
+}
+
+// ===========================================================================
+// USUARIOS (CRUD del superadministrador sobre usuarios/{uid})
+// ===========================================================================
+export async function crearPerfilUsuario(uid, { email, nombre, rol }) {
+  const f = await fb();
+  const user = await currentUser();
+  const { doc, setDoc, serverTimestamp } = f.firestore;
+  await setDoc(doc(f.db, 'usuarios', uid), {
+    email, nombre: nombre || email, rol, estado: 'activo', debeCambiarPassword: true,
+    creadoPor: user ? (user.email || user.uid) : 'superadmin', creadoEn: serverTimestamp(),
+  });
+  await audit('usuario', uid, 'alta', user, { email, rol });
+}
+
+export async function actualizarPerfilUsuario(uid, cambios, accion = 'edicion') {
+  const f = await fb();
+  const user = await currentUser();
+  const { doc, updateDoc, serverTimestamp } = f.firestore;
+  await updateDoc(doc(f.db, 'usuarios', uid), { ...cambios, modificadoPor: user ? (user.email || user.uid) : 'superadmin', modificadoEn: serverTimestamp() });
+  await audit('usuario', uid, accion, user, cambios);
 }
 
 // ¿Hay un snapshot publicado? (meta/publicacion es de lectura pública)
@@ -476,6 +604,12 @@ export async function publishSnapshot({ onProgress } = {}) {
   const spSnap = await getDocs(query(collection(f.db, 'especies'), where('eliminado', '==', false)));
   const LIMPIAR = ['creadoEn', 'modificadoEn', 'creadoPor', 'modificadoPor', 'version', 'eliminado'];
   const species = spSnap.docs.map(d => { const o = { ...d.data() }; LIMPIAR.forEach(k => delete o[k]); return o; });
+  // Individuos por especie recalculados desde los árboles publicados, y orden
+  // de mayor a menor (igual que datos/species.json).
+  const porEspecie = new Map();
+  features.forEach(ft => porEspecie.set(ft.properties.sp, (porEspecie.get(ft.properties.sp) || 0) + 1));
+  species.forEach(s => { s.individuos = porEspecie.get(s.slug) || 0; });
+  species.sort((a, b) => (b.individuos || 0) - (a.individuos || 0) || String(a.comun).localeCompare(String(b.comun), 'es'));
 
   // 3) Calcular estadísticas y metadatos.
   const stats = computeStats(features, species);

@@ -12,8 +12,21 @@ import { renderArbol, renderReportar } from './pages/arbol.js';
 import { renderEstadisticas } from './pages/estadisticas.js';
 import { renderImportar } from './pages/importar.js';
 import { renderAdmin } from './pages/admin.js';
+import { isConfigured, currentUser, getUserRole, puedeImportar } from './backend.js';
 
 const main = document.getElementById('main');
+
+// ---------- Menú según permisos: "Importar" solo para administradores ----------
+async function actualizarMenuPermisos() {
+  const link = document.getElementById('nav-importar');
+  if (!link) return;
+  try {
+    const user = (await isConfigured()) ? await currentUser() : null;
+    link.hidden = !(user && puedeImportar(await getUserRole(user)));
+  } catch { link.hidden = true; }
+}
+window.addEventListener('perfil-cambio', actualizarMenuPermisos);
+actualizarMenuPermisos();
 
 // ---------- Tema ----------
 (function initTheme() {

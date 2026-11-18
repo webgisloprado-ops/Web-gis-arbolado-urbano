@@ -5,6 +5,7 @@ import { el, esc, fmt, debounce, toast, ICON } from '../util.js';
 import { getSpecies, getStats, getTrees, filterTrees, getSpeciesBySlug } from '../data.js';
 import { TreeMap, BASEMAPS } from '../map.js';
 import { buildFicha } from '../ui.js';
+import { listCapas, getCapaGeoJSON } from '../backend.js';
 
 export async function renderMapa(main, params = {}) {
   main.innerHTML = '';
@@ -46,8 +47,16 @@ export async function renderMapa(main, params = {}) {
   const baseSel = el('select', { class: 'select', style: 'width:auto', 'aria-label': 'Capa base', onchange: e => tm.setBasemap(e.target.value) });
   Object.entries(BASEMAPS).forEach(([k, b]) => baseSel.append(el('option', { value: k, text: b.name })));
   const baseWrap = el('div', { class: 'map-pill', style: 'padding:4px' }, [baseSel]);
-  toolbar.append(modeSeg, baseWrap, btnLoc, btnFit);
+  const btnCapas = el('button', { class: 'map-btn', title: 'Capas', 'aria-label': 'Capas del mapa', 'aria-expanded': 'false',
+    html: '<svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg>',
+    onclick: () => { const abierto = layersPanel.hidden; layersPanel.hidden = !abierto; btnCapas.setAttribute('aria-expanded', String(abierto)); } });
+  toolbar.append(modeSeg, baseWrap, btnCapas, btnLoc, btnFit);
   canvas.append(toolbar);
+
+  // ---------- Panel de capas (Arbolado + capas importadas) ----------
+  const layersPanel = el('div', { class: 'layers-panel', hidden: true, role: 'region', 'aria-label': 'Capas' });
+  canvas.append(layersPanel);
+  const capasState = { arbolado: true, capas: [], visibles: new Set(), cache: new Map(), cargando: new Set() };
   tm.opts.onLocateError = () => toast('No se pudo obtener tu ubicación');
 
   // ---------- Drawer ficha ----------
@@ -80,16 +89,80 @@ export async function renderMapa(main, params = {}) {
   function setMode(mode) {
     tm.mode = mode;
     [...modeSeg.children].forEach((b, i) => b.classList.toggle('on', (mode === 'cluster') === (i === 0)));
-    tm.render(current, { onSelect });
+    renderArbolado();
+  }
+
+  // La capa de arbolado se puede ocultar desde el panel de capas.
+  function renderArbolado() {
+    if (capasState.arbolado) tm.render(current, { onSelect });
+    else tm._clearLayers();
   }
 
   function apply() {
     current = filterTrees(filters);
     const cnt = pillCount.querySelector('#mp-count');
     if (cnt) cnt.innerHTML = `<b>${fmt(current.length)}</b> de ${fmt(getTrees().length)} árboles`;
-    tm.render(current, { onSelect });
+    renderArbolado();
     updateZone();
   }
+
+  // ---------- Capas: mostrar / ocultar ----------
+  async function mostrarCapa(capa, visible) {
+    if (!visible) { capasState.visibles.delete(capa.id); tm.removeOverlay(capa.id); drawLayers(); return; }
+    capasState.visibles.add(capa.id);
+    drawLayers();
+    try {
+      if (!capasState.cache.has(capa.id)) {
+        capasState.cargando.add(capa.id); drawLayers();
+        capasState.cache.set(capa.id, await getCapaGeoJSON(capa));
+      }
+      if (capasState.visibles.has(capa.id) && tm.map) tm.addOverlay(capa.id, capasState.cache.get(capa.id), { color: capa.color, nombre: capa.nombre });
+    } catch (e) {
+      capasState.visibles.delete(capa.id);
+      toast(`No se pudo cargar la capa "${capa.nombre}": ${e.message}`);
+    } finally { capasState.cargando.delete(capa.id); drawLayers(); }
+  }
+
+  function setArbolado(visible) { capasState.arbolado = visible; renderArbolado(); drawLayers(); }
+
+  const todasActivas = () => capasState.arbolado && capasState.capas.every(c => capasState.visibles.has(c.id));
+  function toggleTodas() {
+    const activar = !todasActivas();
+    setArbolado(activar);
+    capasState.capas.forEach(c => { if (capasState.visibles.has(c.id) !== activar) mostrarCapa(c, activar); });
+  }
+
+  function drawLayers() {
+    layersPanel.innerHTML = '';
+    const allOn = todasActivas();
+    layersPanel.append(el('div', { class: 'layers-head' }, [
+      el('strong', { text: 'Capas' }),
+      el('button', { class: 'btn btn-sm ' + (allOn ? 'btn-ghost' : 'btn-primary'), text: allOn ? 'Desactivar todas' : 'Activar todas', onclick: toggleTodas }),
+    ]));
+    const fila = (id, nombre, detalle, color, checked, onChange, cargando) => el('label', { class: 'layer-row', for: `ly-${id}` }, [
+      el('input', { type: 'checkbox', id: `ly-${id}`, checked: checked ? '' : null, onchange: e => onChange(e.target.checked) }),
+      el('span', { class: 'layer-swatch', style: `background:${color}` }),
+      el('span', { class: 'layer-name' }, [el('span', { text: nombre }), el('small', { class: 'muted', text: cargando ? 'cargando…' : detalle })]),
+    ]);
+    layersPanel.append(fila('arbolado', 'Arbolado', `${fmt(getTrees().length)} árboles`, '#3aa06a', capasState.arbolado, setArbolado));
+    capasState.capas.forEach(c => layersPanel.append(
+      fila(c.id, c.nombre, `${fmt(c.elementos || 0)} elementos · ${c.geometria || ''}`, c.color || '#2e7ab8',
+        capasState.visibles.has(c.id), v => mostrarCapa(c, v), capasState.cargando.has(c.id)),
+    ));
+    if (!capasState.capas.length) layersPanel.append(el('p', { class: 'muted', style: 'font-size:.8rem;margin:8px 0 0', text: 'No hay capas importadas todavía.' }));
+  }
+  drawLayers();
+
+  // Carga la lista de capas sin bloquear el mapa; las marcadas como visibles
+  // por defecto se dibujan al llegar.
+  Promise.race([listCapas(), new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 8000))])
+    .then(capas => {
+      if (!tm.map) return;
+      capasState.capas = capas || [];
+      drawLayers();
+      capasState.capas.filter(c => c.visible !== false).forEach(c => mostrarCapa(c, true));
+    })
+    .catch(() => { /* sin capas adicionales: solo arbolado */ });
 
   // Inteligencia de zona: cuenta lo visible al mover el mapa
   const updateZone = debounce(() => {

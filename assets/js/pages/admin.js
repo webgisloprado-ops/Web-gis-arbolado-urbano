@@ -17,13 +17,17 @@ import { isConfigured, login as fbLogin, logout as fbLogout, currentUser, getUse
 const aFecha = v => v == null ? null : (v.toDate ? v.toDate() : new Date(v));
 
 const ROLES = {
-  admin: { name: 'Administrador', desc: 'Acceso completo', badge: 'green' },
-  gis: { name: 'Técnico GIS', desc: 'Importa y edita información geográfica', badge: 'blue' },
+  superadmin: { name: 'Superadministrador', desc: 'Todo, incluida la gestión de usuarios', badge: 'green' },
+  admin: { name: 'Administrador', desc: 'Importa capas, publica y edita', badge: 'green' },
+  gis: { name: 'Técnico GIS', desc: 'Edita información geográfica (sin importar)', badge: 'blue' },
   editor: { name: 'Editor', desc: 'Modifica registros', badge: 'blue' },
   consulta: { name: 'Consulta', desc: 'Solo lectura', badge: 'gray' },
 };
-const puedeEscribir = rol => ['admin', 'gis', 'editor'].includes(rol);
-const esAdminPleno = rol => rol === 'admin';
+const ESTADOS = { activo: ['Activo', 'green'], inactivo: ['Inactivo', 'amber'], eliminado: ['Eliminado', 'red'] };
+const puedeEscribir = rol => db.ROLES_ESCRITURA.includes(rol);
+const esAdminPleno = rol => rol === 'admin' || rol === 'superadmin';
+const esSuper = rol => rol === 'superadmin';
+const avisarCambioPerfil = () => window.dispatchEvent(new CustomEvent('perfil-cambio'));
 
 // Credencial local por defecto (SOLO modo demostración sin Firebase).
 const DEFAULT_CRED = { user: 'admin', pass: 'arbolado2026' };
@@ -37,10 +41,23 @@ export async function renderAdmin(main, params) {
   _ctx.backend = await db.getBackend();
   _ctx.configured = _ctx.backend !== 'estatico';
 
+  // Si el usuario navegó a otra página mientras se cargaba, no dibujar.
+  const sigueAqui = () => /^#\/admin/.test(location.hash);
   if (_ctx.configured) {
     _ctx.user = await currentUser();
+    if (!sigueAqui()) return;
     if (!_ctx.user) { renderLogin(main); return; }
-    _ctx.rol = (await getUserRole(_ctx.user)) || 'consulta';
+    _ctx.perfil = await db.getPerfil(_ctx.user);
+    if (!sigueAqui()) return;
+    if (!_ctx.perfil || (_ctx.perfil.estado && _ctx.perfil.estado !== 'activo')) {
+      // Sesión abierta de una cuenta sin perfil o desactivada: se cierra.
+      await fbLogout(); avisarCambioPerfil();
+      renderLogin(main, 'Tu cuenta no tiene acceso activo. Contacta a un superadministrador.');
+      return;
+    }
+    _ctx.rol = _ctx.perfil.rol || 'consulta';
+    // Primer ingreso: obligatorio cambiar la contraseña temporal.
+    if (_ctx.perfil.debeCambiarPassword) { renderCambioObligatorio(main); return; }
   } else {
     const session = store.get('admin-session');
     if (!session) { renderLogin(main); return; }
@@ -53,9 +70,9 @@ export async function renderAdmin(main, params) {
 // ---------------------------------------------------------------------------
 // Login
 // ---------------------------------------------------------------------------
-function renderLogin(main) {
+function renderLogin(main, aviso = '') {
   main.innerHTML = '';
-  const err = el('div', { id: 'adm-error', class: 'muted', style: 'color:var(--red-500);font-size:.82rem;min-height:1.1em;margin-bottom:10px' });
+  const err = el('div', { id: 'adm-error', class: 'muted', style: 'color:var(--red-500);font-size:.82rem;min-height:1.1em;margin-bottom:10px', text: aviso });
   const userInput = el('input', { class: 'input', id: 'adm-user', type: _ctx.configured ? 'email' : 'text', value: _ctx.configured ? '' : 'admin', placeholder: _ctx.configured ? 'correo@ejemplo.com' : 'usuario', style: 'margin:6px 0 12px' });
   const passInput = el('input', { class: 'input', id: 'adm-pass', type: 'password', placeholder: '••••••', style: 'margin:6px 0 6px', onkeydown: e => { if (e.key === 'Enter') loginBtn.click(); } });
 
@@ -64,7 +81,7 @@ function renderLogin(main) {
     err.textContent = '';
     if (_ctx.configured) {
       loginBtn.disabled = true; loginBtn.textContent = 'Verificando…';
-      try { await fbLogin(u, p); await renderAdmin(main, { section: 'resumen' }); }
+      try { await fbLogin(u, p); avisarCambioPerfil(); await renderAdmin(main, { section: 'resumen' }); }
       catch (e2) { err.textContent = traducirError(e2.message); loginBtn.disabled = false; loginBtn.textContent = 'Ingresar'; }
     } else {
       const cred = getCred();
@@ -107,8 +124,49 @@ function renderLogin(main) {
 function traducirError(msg = '') {
   if (/invalid-credential|wrong-password|user-not-found|invalid-login/i.test(msg)) return 'Correo o contraseña incorrectos.';
   if (/too-many-requests/i.test(msg)) return 'Demasiados intentos. Espera unos minutos.';
-  if (/no está autorizada/i.test(msg)) return msg;
-  return msg || 'No se pudo iniciar sesión.';
+  if (/email-already-in-use/i.test(msg)) return 'Ya existe una cuenta con ese correo.';
+  if (/invalid-email/i.test(msg)) return 'El correo no es válido.';
+  if (/weak-password/i.test(msg)) return 'La contraseña es demasiado débil (mínimo 8 caracteres).';
+  if (/requires-recent-login/i.test(msg)) return 'Por seguridad, vuelve a iniciar sesión e inténtalo de nuevo.';
+  if (/permission-denied|insufficient permissions/i.test(msg)) return 'No tienes permiso para esta acción.';
+  return msg || 'No se pudo completar la operación.';
+}
+
+// ---------------------------------------------------------------------------
+// Cambio de contraseña (obligatorio en el primer ingreso y desde "Mi cuenta")
+// ---------------------------------------------------------------------------
+function formCambioPassword({ onDone, botonTexto = 'Cambiar contraseña' } = {}) {
+  const err = el('div', { style: 'color:var(--red-500);font-size:.82rem;min-height:1.1em;margin:6px 0' });
+  const actual = el('input', { class: 'input', type: 'password', autocomplete: 'current-password', style: 'margin:6px 0 12px' });
+  const nueva = el('input', { class: 'input', type: 'password', autocomplete: 'new-password', placeholder: 'Mínimo 8 caracteres', style: 'margin:6px 0 12px' });
+  const repetir = el('input', { class: 'input', type: 'password', autocomplete: 'new-password', style: 'margin:6px 0 6px' });
+  const btn = el('button', { class: 'btn btn-primary btn-block', text: botonTexto, onclick: async () => {
+    err.textContent = '';
+    if (nueva.value !== repetir.value) { err.textContent = 'Las contraseñas nuevas no coinciden.'; return; }
+    btn.disabled = true; btn.textContent = 'Guardando…';
+    try { await db.cambiarPassword(actual.value, nueva.value); toast('Contraseña actualizada.'); onDone && onDone(); }
+    catch (e) { err.textContent = traducirError(e.message); btn.disabled = false; btn.textContent = botonTexto; }
+  } });
+  return el('div', {}, [
+    el('label', { class: 'filter-title', text: 'Contraseña actual' }), actual,
+    el('label', { class: 'filter-title', text: 'Nueva contraseña' }), nueva,
+    el('label', { class: 'filter-title', text: 'Repite la nueva contraseña' }), repetir,
+    err, btn,
+  ]);
+}
+
+function renderCambioObligatorio(main) {
+  main.innerHTML = '';
+  const card = el('div', { class: 'card login-card' }, [
+    el('div', { style: 'text-align:center;margin-bottom:16px' }, [
+      el('div', { style: 'font-size:40px', text: '🔑' }),
+      el('h2', { style: 'margin:8px 0 2px', text: 'Cambia tu contraseña' }),
+      el('p', { class: 'muted', style: 'margin:0', text: 'Es tu primer ingreso: reemplaza la contraseña temporal que te entregaron por una propia.' }),
+    ]),
+    formCambioPassword({ botonTexto: 'Guardar y entrar', onDone: () => renderAdmin(main, { section: 'resumen' }) }),
+    el('button', { class: 'btn btn-ghost btn-block', style: 'margin-top:10px', text: 'Cerrar sesión', onclick: async () => { await fbLogout(); avisarCambioPerfil(); renderLogin(main); } }),
+  ]);
+  main.append(el('div', { class: 'wrap' }, [card]));
 }
 
 // ---------------------------------------------------------------------------
@@ -118,20 +176,24 @@ function renderShell(main, section) {
   main.innerHTML = '';
   const shell = el('div', { class: 'admin-shell' });
   const side = el('nav', { class: 'admin-side' });
+  const rol = _ctx.rol;
   const nav = [
-    ['resumen', '📊', 'Resumen'],
-    ['arboles', '🌳', 'Árboles'],
-    ['especies', '🌿', 'Especies e imágenes'],
-    ['reportes', '📨', 'Reportes'],
-    ['auditoria', '🧾', 'Auditoría'],
-    ['usuarios', '👥', 'Usuarios y roles'],
-    ['importar', '📥', 'Importación'],
-  ];
+    ['resumen', '📊', 'Resumen', true],
+    ['arboles', '🌳', 'Árboles', true],
+    ['especies', '🌿', 'Especies e imágenes', true],
+    ['capas', '🗂️', 'Capas', true],
+    ['reportes', '📨', 'Reportes', true],
+    ['auditoria', '🧾', 'Auditoría', esAdminPleno(rol) || !_ctx.configured],
+    ['usuarios', '👥', 'Usuarios y roles', esAdminPleno(rol) || !_ctx.configured],
+    ['importar', '📥', 'Importación', db.puedeImportar(rol) || !_ctx.configured],
+    ['cuenta', '🔑', 'Mi cuenta', _ctx.configured],
+  ].filter(n => n[3]);
+  if (!nav.some(n => n[0] === section)) section = 'resumen';
   nav.forEach(([k, i, l]) => side.append(el('a', { href: `#/admin/${k}`, class: section === k ? 'active' : '', html: `<span>${i}</span> ${l}` })));
   side.append(el('a', { href: '#/', style: 'margin-top:20px;color:var(--red-500)', html: '<span>↩</span> Salir', onclick: async e => {
     e.preventDefault();
     if (_ctx.configured) await fbLogout(); else store.del('admin-session');
-    _ctx.user = null; location.hash = '#/';
+    _ctx.user = null; avisarCambioPerfil(); location.hash = '#/';
   } }));
 
   const content = el('div', { class: 'admin-main' });
@@ -149,7 +211,7 @@ function renderShell(main, section) {
   shell.append(side, content);
   main.append(shell);
 
-  const fn = { resumen, arboles, especies, reportes, auditoria, usuarios, importar }[section] || resumen;
+  const fn = { resumen, arboles, especies, capas, reportes, auditoria, usuarios, importar, cuenta }[section] || resumen;
   runSection(region, fn);
 }
 
@@ -565,38 +627,209 @@ async function usuarios(c) {
     c.append(el('div', { class: 'callout callout-amber', style: 'margin-top:16px' }, [el('span', { class: 'ci', text: '👥' }), 'Usuarios de demostración. Conecta Firebase para gestionar cuentas y roles reales.']));
     return;
   }
-  const rows = await db.listUsuarios();
-  if (!rows.length) {
-    const ayuda = ['Aún no hay documentos de rol. Crea un documento en la colección ', el('code', { text: 'usuarios/{uid}' }), ' con el campo ', el('code', { text: 'rol' }), ' (admin | gis | editor | consulta). El uid es el de Authentication.'];
-    c.append(el('div', { class: 'callout callout-blue' }, [el('span', { class: 'ci', text: 'ℹ️' }), el('div', {}, ayuda)]));
-  } else {
-    c.append(tablaUsuarios(rows));
-  }
-  if (esAdminPleno(_ctx.rol)) {
-    c.append(el('p', { class: 'muted', style: 'margin-top:14px;font-size:.86rem', text: 'La creación de cuentas se hace en la consola de Firebase (Authentication). Aquí se administran los roles.' }));
-  }
+  const superadmin = esSuper(_ctx.rol);
+  let rows = await db.listUsuarios();
+  const verEliminados = store.get('ver-usuarios-eliminados', false);
+  const eliminados = rows.filter(u => u.estado === 'eliminado').length;
+  if (!verEliminados) rows = rows.filter(u => u.estado !== 'eliminado');
+  rows.sort((a, b) => Object.keys(ROLES).indexOf(a.rol) - Object.keys(ROLES).indexOf(b.rol) || String(a.email).localeCompare(b.email));
+
+  const bar = el('div', { style: 'display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px' });
+  if (superadmin) bar.append(el('button', { class: 'btn btn-primary', text: '➕ Nuevo usuario', onclick: () => modalUsuario(null) }));
+  if (eliminados) bar.append(el('label', { class: 'muted', style: 'font-size:.86rem;display:flex;gap:6px;align-items:center;cursor:pointer' }, [
+    el('input', { type: 'checkbox', checked: verEliminados ? '' : null, onchange: e => { store.set('ver-usuarios-eliminados', e.target.checked); reload('usuarios'); } }),
+    `Mostrar eliminados (${eliminados})`,
+  ]));
+  c.append(bar);
+  c.append(tablaUsuarios(rows, superadmin));
+  c.append(el('div', { class: 'callout callout-blue', style: 'margin-top:16px' }, [el('span', { class: 'ci', text: 'ℹ️' }), el('div', {}, superadmin
+    ? ['Los usuarios nuevos reciben una contraseña temporal y deben cambiarla en su primer ingreso. "Eliminar" desactiva la cuenta y le quita el acceso (plan gratuito); para borrarla por completo usa Firebase Console → Authentication.']
+    : ['Solo el Superadministrador puede crear, editar o desactivar usuarios.'])]));
 }
-function tablaUsuarios(rows) {
+
+function tablaUsuarios(rows, editable = false) {
   const table = el('table', { class: 'data-table' });
-  table.append(el('thead', {}, [el('tr', {}, ['Usuario', 'Rol', 'Permisos', 'Estado'].map(h => el('th', { text: h })))]));
+  table.append(el('thead', {}, [el('tr', {}, ['Usuario', 'Rol', 'Permisos', 'Estado', editable ? 'Acciones' : null].filter(Boolean).map(h => el('th', { text: h })))]));
   const tb = el('tbody');
-  rows.forEach(u => tb.append(el('tr', {}, [
-    el('td', {}, [el('strong', { text: u.nombre || u.email || u.uid })]),
-    el('td', {}, [el('span', { class: `badge badge-${ROLES[u.rol]?.badge || 'gray'}`, text: ROLES[u.rol]?.name || u.rol || '—' })]),
-    el('td', { text: ROLES[u.rol]?.desc || '—' }),
-    el('td', {}, [el('span', { class: 'badge badge-green', text: u.estado || 'activo' })]),
-  ])));
+  rows.forEach(u => {
+    const [estTxt, estBadge] = ESTADOS[u.estado || 'activo'] || [u.estado, 'gray'];
+    const yo = u.uid && _ctx.user && u.uid === _ctx.user.uid;
+    const acciones = editable ? el('td', { style: 'white-space:nowrap' }, [
+      el('button', { class: 'link-btn', text: 'Editar', onclick: () => modalUsuario(u) }), ' · ',
+      el('button', { class: 'link-btn', text: 'Restablecer contraseña', onclick: () => resetUsuario(u) }),
+      yo ? null : ' · ',
+      yo ? null : u.estado === 'eliminado' || u.estado === 'inactivo'
+        ? el('button', { class: 'link-btn', text: 'Reactivar', onclick: () => cambiarEstado(u, 'activo') })
+        : el('button', { class: 'link-btn', style: 'color:var(--red-500)', text: 'Eliminar', onclick: () => eliminarUsuario(u) }),
+    ]) : null;
+    tb.append(el('tr', {}, [
+      el('td', {}, [el('strong', { text: u.nombre || u.email || u.uid }), u.email && u.nombre !== u.email ? el('div', { class: 'muted', style: 'font-size:.8rem', text: u.email }) : null,
+        u.debeCambiarPassword ? el('div', { class: 'muted', style: 'font-size:.75rem', text: '⏳ debe cambiar su contraseña' }) : null]),
+      el('td', {}, [el('span', { class: `badge badge-${ROLES[u.rol]?.badge || 'gray'}`, text: ROLES[u.rol]?.name || u.rol || '—' })]),
+      el('td', { text: ROLES[u.rol]?.desc || '—' }),
+      el('td', {}, [el('span', { class: `badge badge-${estBadge}`, text: estTxt })]),
+      acciones,
+    ].filter(Boolean)));
+  });
+  if (!rows.length) tb.append(el('tr', {}, [el('td', { colspan: editable ? 5 : 4, class: 'muted', text: 'No hay usuarios.' })]));
   table.append(tb);
   return el('div', { style: 'overflow-x:auto' }, [table]);
 }
 
+// Contraseña temporal aleatoria legible (12 caracteres).
+function passwordTemporal() {
+  const abc = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  const r = crypto.getRandomValues(new Uint32Array(12));
+  return [...r].map(n => abc[n % abc.length]).join('');
+}
+
+const campo = (label, input) => el('div', { style: 'margin-bottom:12px' }, [el('label', { class: 'filter-title', text: label }), input]);
+const selectRol = (valor, deshabilitado = false) => el('select', { class: 'select', disabled: deshabilitado ? '' : null },
+  Object.entries(ROLES).map(([k, r]) => el('option', { value: k, text: `${r.name} — ${r.desc}`, selected: valor === k ? '' : null })));
+
+function modalUsuario(u) {
+  const nuevo = !u;
+  const yo = u && _ctx.user && u.uid === _ctx.user.uid;
+  const nombre = el('input', { class: 'input', value: u?.nombre || '', placeholder: 'Nombre y apellido' });
+  const email = el('input', { class: 'input', type: 'email', value: u?.email || '', placeholder: 'correo@ejemplo.com', disabled: nuevo ? null : '' });
+  const rol = selectRol(u?.rol || 'consulta', yo);
+  const estado = el('select', { class: 'select', disabled: yo ? '' : null }, Object.entries(ESTADOS).map(([k, [t]]) => el('option', { value: k, text: t, selected: (u?.estado || 'activo') === k ? '' : null })));
+  const temp = passwordTemporal();
+  const pass = el('input', { class: 'input', value: temp, style: 'font-family:monospace' });
+  const body = el('div', {}, [
+    campo('Nombre', nombre), campo('Correo electrónico', email), campo('Rol', rol),
+    nuevo ? campo('Contraseña temporal', el('div', { style: 'display:flex;gap:8px' }, [pass,
+      el('button', { class: 'btn btn-ghost btn-sm', type: 'button', text: '🎲', title: 'Generar otra', onclick: () => { pass.value = passwordTemporal(); } })])) : campo('Estado', estado),
+    nuevo ? el('p', { class: 'muted', style: 'font-size:.82rem;margin:0', text: 'Entrégale esta contraseña al usuario: deberá cambiarla en su primer ingreso.' }) : null,
+    yo ? el('p', { class: 'muted', style: 'font-size:.82rem;margin:0', text: 'No puedes cambiar tu propio rol ni estado.' }) : null,
+  ]);
+  modal(nuevo ? 'Nuevo usuario' : 'Editar usuario', body, async () => {
+    try {
+      if (nuevo) {
+        const correo = email.value.trim();
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(correo)) { toast('Escribe un correo válido.'); return false; }
+        if (pass.value.length < 8) { toast('La contraseña temporal debe tener al menos 8 caracteres.'); return false; }
+        await db.crearUsuario({ email: correo, nombre: nombre.value.trim() || correo, rol: rol.value, password: pass.value });
+        modalInfo('Usuario creado', [
+          el('p', { text: `Comparte estos datos con ${correo} por un canal seguro:` }),
+          el('pre', { style: 'background:var(--surface-2);padding:12px;border-radius:10px;white-space:pre-wrap', text: `Web: ${location.origin}/#/admin\nCorreo: ${correo}\nContraseña temporal: ${pass.value}` }),
+          el('p', { class: 'muted', style: 'font-size:.84rem', text: 'Al entrar por primera vez se le pedirá cambiar la contraseña.' }),
+        ]);
+      } else {
+        const cambios = { nombre: nombre.value.trim() || u.email };
+        if (!yo) { cambios.rol = rol.value; cambios.estado = estado.value; }
+        await db.actualizarUsuario(u.uid, cambios);
+        toast('Usuario actualizado.');
+      }
+      reload('usuarios');
+    } catch (e) { toast(traducirError(e.message), 5000); return false; }
+  }, { okText: nuevo ? 'Crear usuario' : 'Guardar' });
+}
+
+async function resetUsuario(u) {
+  if (!u.email) return toast('Este usuario no tiene correo registrado.');
+  if (!confirm(`¿Enviar a ${u.email} un correo para restablecer su contraseña?`)) return;
+  try { await db.enviarResetPassword(u.email); toast(`Correo de restablecimiento enviado a ${u.email}.`, 4000); }
+  catch (e) { toast(traducirError(e.message), 5000); }
+}
+
+async function cambiarEstado(u, estado) {
+  try { await db.actualizarUsuario(u.uid, { estado }, estado === 'activo' ? 'reactivacion' : 'desactivacion'); toast('Usuario actualizado.'); reload('usuarios'); }
+  catch (e) { toast(traducirError(e.message), 5000); }
+}
+
+function eliminarUsuario(u) {
+  modal('Eliminar usuario', el('p', { text: `${u.email || u.nombre} perderá el acceso al panel de inmediato. Podrás reactivarlo más tarde desde "Mostrar eliminados".` }), async () => {
+    await db.actualizarUsuario(u.uid, { estado: 'eliminado' }, 'eliminacion');
+    toast('Usuario eliminado (desactivado).');
+    reload('usuarios');
+  }, { okText: 'Eliminar', danger: true });
+}
+
+function modalInfo(titulo, nodos) {
+  const overlay = el('div', { class: 'modal-overlay', style: 'position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:2100;padding:20px' });
+  overlay.append(el('div', { class: 'card card-pad', style: 'max-width:520px;width:100%' }, [
+    el('h3', { style: 'margin:0 0 12px', text: titulo }), ...nodos,
+    el('div', { style: 'text-align:right;margin-top:14px' }, [el('button', { class: 'btn btn-primary', text: 'Entendido', onclick: () => overlay.remove() })]),
+  ]));
+  document.body.append(overlay);
+}
+
 // ---------------------------------------------------------------------------
-// Importación
+// Capas GIS
+// ---------------------------------------------------------------------------
+async function capas(c) {
+  const admin = db.puedeImportar(_ctx.rol);
+  if (!_ctx.configured) { c.append(el('div', { class: 'callout callout-amber' }, [el('span', { class: 'ci', text: '⚠️' }), 'Las capas requieren Firebase configurado.'])); return; }
+  const lista = await db.listCapas();
+  if (admin) c.append(el('div', { style: 'display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px' }, [
+    el('a', { class: 'btn btn-primary', href: '#/importar?accion=nueva', text: '🆕 Nueva capa' }),
+    el('a', { class: 'btn btn-ghost', href: '#/mapa', text: '🗺️ Ver en el mapa' }),
+  ]));
+  const table = el('table', { class: 'data-table' });
+  table.append(el('thead', {}, [el('tr', {}, ['Capa', 'Geometría', 'Elementos', 'Visible al abrir el mapa', admin ? 'Acciones' : null].filter(Boolean).map(h => el('th', { text: h })))]));
+  const tb = el('tbody');
+  tb.append(el('tr', {}, [
+    el('td', {}, [el('span', { class: 'layer-swatch', style: 'display:inline-block;vertical-align:middle;margin-right:8px;background:#3aa06a' }), el('strong', { text: 'Arbolado' }), el('div', { class: 'muted', style: 'font-size:.78rem', text: 'Capa principal (solo admite agregar árboles)' })]),
+    el('td', { text: 'Point' }), el('td', { text: fmt(getTrees().length) }), el('td', { text: 'Sí' }),
+    admin ? el('td', {}, [el('a', { class: 'link-btn', href: '#/importar?accion=agregar&capa=arbolado', text: 'Agregar árboles' })]) : null,
+  ].filter(Boolean)));
+  lista.forEach(k => tb.append(el('tr', {}, [
+    el('td', {}, [el('span', { class: 'layer-swatch', style: `display:inline-block;vertical-align:middle;margin-right:8px;background:${k.color || '#2e7ab8'}` }), el('strong', { text: k.nombre }),
+      el('div', { class: 'muted', style: 'font-size:.78rem', text: `${k.archivo || ''} · ${k.modificadoPor || ''}` })]),
+    el('td', { text: k.geometria || '—' }), el('td', { text: fmt(k.elementos || 0) }),
+    el('td', { text: k.visible === false ? 'No' : 'Sí' }),
+    admin ? el('td', { style: 'white-space:nowrap' }, [
+      el('button', { class: 'link-btn', text: 'Editar', onclick: () => modalCapa(k) }), ' · ',
+      el('a', { class: 'link-btn', href: `#/importar?accion=agregar&capa=${encodeURIComponent(k.id)}`, text: 'Agregar' }), ' · ',
+      el('a', { class: 'link-btn', href: `#/importar?accion=reemplazar&capa=${encodeURIComponent(k.id)}`, text: 'Reemplazar' }), ' · ',
+      el('button', { class: 'link-btn', style: 'color:var(--red-500)', text: 'Eliminar', onclick: () => modal('Eliminar capa', el('p', { text: `La capa "${k.nombre}" dejará de mostrarse en el mapa.` }), async () => {
+        await db.eliminarCapa(k.id); toast('Capa eliminada.'); reload('capas');
+      }, { okText: 'Eliminar', danger: true }) }),
+    ]) : null,
+  ].filter(Boolean))));
+  table.append(tb);
+  c.append(el('div', { style: 'overflow-x:auto' }, [table]));
+  if (!admin) c.append(el('p', { class: 'muted', style: 'margin-top:12px;font-size:.86rem', text: 'Solo los administradores pueden importar, reemplazar o editar capas.' }));
+}
+
+function modalCapa(k) {
+  const nombre = el('input', { class: 'input', value: k.nombre });
+  const color = el('input', { class: 'input', type: 'color', value: k.color || '#2e7ab8' });
+  const visible = el('input', { type: 'checkbox', checked: k.visible === false ? null : '' });
+  modal('Editar capa', el('div', {}, [
+    campo('Nombre', nombre), campo('Color', color),
+    el('label', { style: 'display:flex;gap:8px;align-items:center;cursor:pointer' }, [visible, 'Visible al abrir el mapa']),
+  ]), async () => {
+    if (!nombre.value.trim()) { toast('La capa necesita un nombre.'); return false; }
+    await db.editarCapa(k.id, { nombre: nombre.value, color: color.value, visible: visible.checked });
+    toast('Capa actualizada.'); reload('capas');
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Importación (solo administradores)
 // ---------------------------------------------------------------------------
 function importar(c) {
-  c.append(el('p', { class: 'muted', text: 'El asistente de importación de 5 pasos analiza, mapea, valida y guarda datos en Firestore por lotes (sin trabar el navegador).' }));
-  c.append(el('a', { class: 'btn btn-primary', href: '#/importar', text: '📥 Abrir asistente de importación' }));
-  if (!_ctx.configured) c.append(el('div', { class: 'callout callout-amber', style: 'margin-top:14px' }, [el('span', { class: 'ci', text: '⚠️' }), 'Sin backend configurado, el asistente valida y previsualiza pero no persiste. Conecta Firebase para guardar de verdad.']));
+  c.append(el('p', { class: 'muted', text: 'Crea capas nuevas, reemplaza capas existentes o agrégales elementos desde GeoJSON, KML, KMZ, Shapefile (.zip) o XLSX/CSV con latitud y longitud.' }));
+  c.append(el('div', { style: 'display:flex;gap:10px;flex-wrap:wrap' }, [
+    el('a', { class: 'btn btn-primary', href: '#/importar?accion=nueva', text: '🆕 Nueva capa' }),
+    el('a', { class: 'btn btn-ghost', href: '#/importar?accion=reemplazar', text: '♻️ Reemplazar capa' }),
+    el('a', { class: 'btn btn-ghost', href: '#/importar?accion=agregar', text: '➕ Agregar elementos' }),
+  ]));
+}
+
+// ---------------------------------------------------------------------------
+// Mi cuenta: cambio de contraseña
+// ---------------------------------------------------------------------------
+function cuenta(c) {
+  const p = _ctx.perfil || {};
+  c.append(el('div', { class: 'card card-pad', style: 'max-width:520px' }, [
+    el('p', { style: 'margin-top:0' }, [el('strong', { text: p.nombre || _ctx.user?.email || '' }), el('br'), el('span', { class: 'muted', text: _ctx.user?.email || '' })]),
+    el('p', {}, [el('span', { class: `badge badge-${ROLES[_ctx.rol]?.badge || 'gray'}`, text: ROLES[_ctx.rol]?.name || _ctx.rol })]),
+    el('h3', { text: 'Cambiar mi contraseña' }),
+    formCambioPassword({ onDone: () => reload('cuenta') }),
+  ]));
 }
 
 // ---------------------------------------------------------------------------

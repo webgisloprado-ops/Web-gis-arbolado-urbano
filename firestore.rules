@@ -1,39 +1,46 @@
 rules_version = '2';
 // ============================================================================
-// Reglas de seguridad de Firestore — Sistema de Arbolado Urbano
+// Reglas de seguridad de Firestore — Web GIS Arbolado Urbano
 // ----------------------------------------------------------------------------
-// Modelo: la VISTA PÚBLICA lee solo el snapshot publicado (colección snapshot,
-// lectura libre); el resto de Firestore lo consume el PANEL ADMIN autenticado.
-// Plan gratuito (Spark): no se usa Cloud Storage. Los permisos de
-// escritura dependen del ROL guardado en usuarios/{uid}.rol.
-//   admin   → todo
-//   gis     → importar y editar árboles/especies + publicar
-//   editor  → editar registros
-//   consulta→ solo lectura
-// El borrado es LÓGICO (campo eliminado); no se permite borrado físico.
+// La VISTA PÚBLICA lee solo el snapshot publicado y las capas (lectura libre);
+// el resto lo consume el PANEL ADMIN autenticado. Plan gratuito (Spark).
+// Permisos según usuarios/{uid}.rol, y solo si usuarios/{uid}.estado == activo:
+//   superadmin → todo, incluida la gestión de usuarios
+//   admin      → importar capas, publicar y editar
+//   gis        → editar árboles/especies + publicar (sin importar capas)
+//   editor     → editar registros
+//   consulta   → solo lectura
+// El borrado es LÓGICO (campo eliminado / estado); no se borran documentos,
+// salvo las partes sobrantes de una capa reemplazada.
 // ============================================================================
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function auth()       { return request.auth != null; }
-    function rol()        { return auth() ? get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol : 'anon'; }
-    function esAdmin()    { return auth() && rol() == 'admin'; }
-    function puedeEscribir() { return auth() && rol() in ['admin', 'gis', 'editor']; }
-    function puedePublicar() { return auth() && rol() in ['admin', 'gis']; }
-    // Cuentas (uid de Authentication) que pueden auto-asignarse el rol admin en
-    // su primer ingreso. Para añadir otra, crea el usuario en Authentication y
-    // agrega aquí su uid (o asígnale el rol desde un admin existente).
+    function auth() { return request.auth != null; }
+    function rutaPerfil() { return /databases/$(database)/documents/usuarios/$(request.auth.uid); }
+    function rol() {
+      return auth() && exists(rutaPerfil()) && get(rutaPerfil()).data.get('estado', 'activo') == 'activo'
+        ? get(rutaPerfil()).data.rol : 'anon';
+    }
+    function esSuper()       { return rol() == 'superadmin'; }
+    function esAdmin()       { return rol() in ['superadmin', 'admin']; }
+    function puedeImportar() { return rol() in ['superadmin', 'admin']; }
+    function puedePublicar() { return rol() in ['superadmin', 'admin', 'gis']; }
+    function puedeEscribir() { return rol() in ['superadmin', 'admin', 'gis', 'editor']; }
+    // Superadministradores iniciales (uid de Authentication): pueden crear o
+    // elevar su propio perfil a superadmin en su primer ingreso.
     function esAdminInicial(uid) { return uid in ['3y0wFL8RU9ShTiJrDpEyQPOocDO2']; }
     // Trazabilidad obligatoria en cada escritura.
-    function conSello()   { return request.resource.data.modificadoPor is string; }
+    function conSello() { return request.resource.data.modificadoPor is string; }
+    function rolValido(r) { return r in ['superadmin', 'admin', 'gis', 'editor', 'consulta']; }
 
     // ---- Árboles (individuos) ----
     match /arboles/{id} {
-      allow read:   if auth();                 // el snapshot público NO usa esto
+      allow read:   if auth();
       allow create: if puedeEscribir() && conSello()
                        && request.resource.data.eliminado == false;
       allow update: if puedeEscribir() && conSello();
-      allow delete: if false;                  // nunca borrado físico → usar eliminado:true
+      allow delete: if false;
     }
 
     // ---- Especies (biblioteca botánica) ----
@@ -45,12 +52,11 @@ service cloud.firestore {
 
     // ---- Metadatos / estado de publicación ----
     match /meta/{id} {
-      allow read:   if true;
-      allow write:  if puedeEscribir();
+      allow read:  if true;
+      allow write: if puedeEscribir();
     }
 
     // ---- Reportes ciudadanos ----
-    // Cualquiera crea un reporte pendiente; solo el admin/editor lo revisa.
     match /reportes/{id} {
       allow create: if request.resource.data.estado == 'pendiente'
                        && request.resource.data.tipo is string
@@ -62,13 +68,29 @@ service cloud.firestore {
     }
 
     // ---- Usuarios y roles ----
-    // Cada usuario puede leer su propio doc (para conocer su rol); el admin gestiona todos.
     match /usuarios/{uid} {
-      allow read:  if auth() && (request.auth.uid == uid || esAdmin());
-      allow write: if esAdmin();
-      // Primer ingreso de un administrador inicial: crea su propio doc de rol.
-      allow create: if auth() && request.auth.uid == uid && esAdminInicial(uid)
-                       && request.resource.data.rol == 'admin';
+      allow read: if auth() && (request.auth.uid == uid || esAdmin());
+
+      // Alta: el superadmin crea perfiles; o el superadmin inicial crea el suyo.
+      allow create: if (esSuper() && rolValido(request.resource.data.rol))
+                    || (auth() && request.auth.uid == uid && esAdminInicial(uid)
+                        && request.resource.data.rol == 'superadmin');
+
+      // Edición:
+      //  - el superadmin edita a otros (rol, estado, nombre…); a sí mismo solo
+      //    sin cambiar su rol ni su estado;
+      //  - el superadmin inicial puede elevar su propio perfil a superadmin;
+      //  - cada usuario marca que ya cambió su contraseña temporal.
+      allow update: if (esSuper() && rolValido(request.resource.data.rol)
+                        && (request.auth.uid != uid
+                            || (request.resource.data.rol == resource.data.rol
+                                && request.resource.data.get('estado', 'activo') == resource.data.get('estado', 'activo'))))
+                    || (auth() && request.auth.uid == uid && esAdminInicial(uid)
+                        && request.resource.data.rol == 'superadmin')
+                    || (auth() && request.auth.uid == uid
+                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['debeCambiarPassword', 'passwordCambiadoEn'])
+                        && request.resource.data.debeCambiarPassword == false);
+      allow delete: if false;
     }
 
     // ---- Snapshot público (JSON troceado; reemplaza a Cloud Storage) ----
@@ -77,11 +99,22 @@ service cloud.firestore {
       allow write: if puedePublicar();
     }
 
+    // ---- Capas GIS importadas (metadatos + GeoJSON troceado) ----
+    match /capas/{id} {
+      allow read:  if true;
+      allow create, update: if puedeImportar();
+      allow delete: if false;
+    }
+    match /capas_datos/{id} {
+      allow read:  if true;
+      allow write: if puedeImportar();
+    }
+
     // ---- Auditoría (append-only) ----
     match /auditoria/{id} {
       allow create: if puedeEscribir();
       allow read:   if esAdmin();
-      allow update, delete: if false;          // registro inmutable
+      allow update, delete: if false;
     }
   }
 }

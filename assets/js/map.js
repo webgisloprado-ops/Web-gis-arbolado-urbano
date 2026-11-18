@@ -108,6 +108,34 @@ export class TreeMap {
     if (this.heat) { this.map.removeLayer(this.heat); this.heat = null; }
   }
 
+  // ---- Capas adicionales (importadas) ----
+  // Dibuja una FeatureCollection con el color de la capa; al hacer clic en un
+  // elemento muestra sus atributos.
+  addOverlay(id, geojson, { color = '#2e7ab8', nombre = '' } = {}) {
+    const L = window.L;
+    this._overlays = this._overlays || new Map();
+    this.removeOverlay(id);
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    const layer = L.geoJSON(geojson, {
+      style: () => ({ color, weight: 2, opacity: .9, fillColor: color, fillOpacity: .25 }),
+      pointToLayer: (_, latlng) => L.circleMarker(latlng, { radius: 6, color: '#fff', weight: 1.5, fillColor: color, fillOpacity: .9 }),
+      onEachFeature: (ft, lyr) => {
+        const filas = Object.entries(ft.properties || {}).filter(([k]) => !k.startsWith('_')).slice(0, 25)
+          .map(([k, v]) => `<tr><th style="text-align:left;padding:2px 8px 2px 0;color:#667">${esc(k)}</th><td style="padding:2px 0">${esc(v)}</td></tr>`).join('');
+        lyr.bindPopup(`<div style="max-height:260px;overflow:auto;font-size:.82rem"><strong style="display:block;margin-bottom:6px">${esc(nombre)}</strong>${filas ? `<table>${filas}</table>` : '<em>Sin atributos</em>'}</div>`, { maxWidth: 320 });
+      },
+    }).addTo(this.map);
+    this._overlays.set(id, layer);
+    return layer;
+  }
+
+  removeOverlay(id) {
+    const l = this._overlays && this._overlays.get(id);
+    if (l) { this.map.removeLayer(l); this._overlays.delete(id); }
+  }
+
+  hasOverlay(id) { return !!(this._overlays && this._overlays.has(id)); }
+
   locate() {
     this.map.locate({ setView: true, maxZoom: 16 });
     this.map.once('locationfound', e => {

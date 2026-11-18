@@ -6,7 +6,10 @@
 // Las páginas importan SIEMPRE desde aquí, no de db.js/firebase.js directamente.
 // ============================================================================
 import * as fbData from './db.js';
-import { login as fbLogin, logout as fbLogout, currentUser as fbUser, getUserRole as fbRole, initFirebase } from './firebase.js';
+import {
+  login as fbLogin, logout as fbLogout, currentUser as fbUser, getUserRole as fbRole, getPerfil as fbPerfil,
+  cambiarPassword as fbCambiarPassword, crearCuentaAuth, enviarResetPassword as fbReset, initFirebase,
+} from './firebase.js';
 
 let _backend = null;
 
@@ -50,8 +53,35 @@ export const resolverReporte = (id, e) => fbData.resolverReporte(id, e);
 // ---- Auditoría ----
 export const listAuditoria = max => fbData.listAuditoria(max);
 
-// ---- Usuarios ----
+// ---- Perfil y contraseña ----
+export const getPerfil = user => fbPerfil(user);
+export const cambiarPassword = (actual, nueva) => fbCambiarPassword(actual, nueva);
+export const enviarResetPassword = email => fbReset(email);
+
+// ---- Usuarios (CRUD del superadministrador) ----
 export const listUsuarios = () => fbData.listUsuarios();
+export async function crearUsuario({ email, nombre, rol, password }) {
+  const uid = await crearCuentaAuth(email, password);
+  await fbData.crearPerfilUsuario(uid, { email, nombre, rol });
+  return uid;
+}
+export const actualizarUsuario = (uid, cambios, accion) => fbData.actualizarPerfilUsuario(uid, cambios, accion);
+
+// ---- Capas GIS ----
+// En modo estático (sin Firebase) no hay capas adicionales.
+export async function listCapas() {
+  if ((await getBackend()) !== 'firebase') return [];
+  return fbData.listCapas();
+}
+export const getCapaGeoJSON = capa => fbData.getCapaGeoJSON(capa);
+export const guardarCapa = (d, o) => fbData.guardarCapa(d, o);
+export const editarCapa = (id, d) => fbData.editarCapa(id, d);
+export const eliminarCapa = id => fbData.eliminarCapa(id);
+
+// Permisos por rol (compartidos por las vistas).
+export const ROLES_ESCRITURA = ['superadmin', 'admin', 'gis', 'editor'];
+export const puedeImportar = rol => ['superadmin', 'admin'].includes(rol);
+export const esSuperadmin = rol => rol === 'superadmin';
 
 // ---- Snapshot ----
 export const publishSnapshot = o => fbData.publishSnapshot(o);

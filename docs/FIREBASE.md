@@ -131,13 +131,26 @@ Se guardan en `usuarios/{uid}.rol`:
 
 | Rol | Permisos |
 |---|---|
-| `admin` | Todo, incluida la gestión de usuarios y la publicación. |
-| `gis` | Importar y editar árboles/especies; publicar snapshot. |
+| `superadmin` | Todo, incluida la gestión de usuarios (crear, editar, desactivar, restablecer contraseña). |
+| `admin` | Importar capas (nueva / reemplazar / agregar), publicar y editar. |
+| `gis` | Editar árboles/especies y publicar snapshot (sin importar). |
 | `editor` | Editar registros (sin publicar). |
 | `consulta` | Solo lectura. |
 
-Para dar acceso a otra persona: créala en **Authentication** y añade su documento
-en **Firestore → `usuarios/{uid}`** con el campo `rol`.
+Para dar acceso a otra persona: **Admin → Usuarios y roles → Nuevo usuario**
+(solo superadmin). Se crea la cuenta con una contraseña temporal que el usuario
+debe cambiar en su primer ingreso; luego puede cambiarla en **Admin → Mi cuenta**.
+"Eliminar" desactiva la cuenta (plan gratuito); para borrarla del todo, usa la
+consola de Firebase → Authentication.
+
+## Capas GIS
+
+Admin → Importación (solo `admin` y `superadmin`): **nueva capa**, **reemplazar
+capa** o **agregar elementos** desde GeoJSON, KML, KMZ, Shapefile (.zip) o
+XLSX/CSV con latitud y longitud. Todo se procesa en el navegador; la capa se
+guarda en `capas/{id}` (metadatos) y `capas_datos/{id}__{n}` (GeoJSON troceado).
+La capa **Arbolado** solo admite agregar árboles. En el mapa, el botón de capas
+permite mostrar u ocultar cada una y **Activar / Desactivar todas**.
 
 ## Seguridad y trazabilidad
 
