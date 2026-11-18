@@ -4,10 +4,10 @@
 // Lee el Shapefile real (Prueba.shp/.dbf) referenciado por el proyecto ArcGIS
 // Pro (Prueba.aprx), lo une con la referencia botánica y produce los archivos
 // de datos que consume la aplicación web:
-//   public/data/trees.geojson  — todos los árboles (geometría + atributos)
-//   public/data/species.json   — catálogo de especies agregado
-//   public/data/stats.json     — indicadores del panel
-//   public/data/meta.json      — metadatos de la importación (trazabilidad)
+//   datos/trees.geojson  — todos los árboles (geometría + atributos)
+//   datos/species.json   — catálogo de especies agregado
+//   datos/stats.json     — indicadores del panel
+//   datos/meta.json      — metadatos de la importación (trazabilidad)
 //
 // Uso:  node scripts/generar-datos.mjs "<carpeta del shapefile>"
 // Por defecto usa la ruta del proyecto de prueba.
@@ -19,7 +19,7 @@ import { BOTANICA, NO_ESPECIE } from './botanica.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
-const OUT = path.join(ROOT, 'public', 'data');
+const OUT = path.join(ROOT, 'datos');
 fs.mkdirSync(OUT, { recursive: true });
 
 const SHP_DIR = process.argv[2] || 'C:/Users/xavie/OneDrive/Desktop/Xavier/Prueba Final/Shapefile';

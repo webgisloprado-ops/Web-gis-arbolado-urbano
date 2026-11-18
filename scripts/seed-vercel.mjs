@@ -1,7 +1,7 @@
 // ============================================================================
 // seed-vercel.mjs — migración inicial a Vercel Postgres + Blob
 // ----------------------------------------------------------------------------
-// Crea el esquema, carga public/data/*.json en Postgres (con trazabilidad),
+// Crea el esquema, carga datos/*.json en Postgres (con trazabilidad),
 // crea el usuario administrador (contraseña cifrada con bcrypt) y sube el
 // snapshot inicial a Blob para que la vista pública funcione de inmediato.
 //
@@ -23,7 +23,7 @@ import { dirname, join } from 'node:path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
-const DATA = join(ROOT, 'public', 'data');
+const DATA = join(ROOT, 'datos');
 
 // ---- Carga simple de .env.local si existe (sin dependencias) ----
 for (const envFile of ['.env.local', '.env']) {

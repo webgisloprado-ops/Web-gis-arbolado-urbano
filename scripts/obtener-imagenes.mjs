@@ -6,7 +6,7 @@
 // licencia y página de origen. La búsqueda se hace por NOMBRE CIENTÍFICO, de
 // modo que nunca se asigna la imagen de una especie diferente.
 //
-// Salida: public/data/species-images.json  { slug: {url, thumb, page, autor, licencia, fuente} }
+// Salida: datos/species-images.json  { slug: {url, thumb, page, autor, licencia, fuente} }
 //
 // Uso:  node scripts/obtener-imagenes.mjs
 // ============================================================================
@@ -16,10 +16,10 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
-const OUT = path.join(ROOT, 'public', 'data', 'species-images.json');
+const OUT = path.join(ROOT, 'datos', 'species-images.json');
 const UA = { 'User-Agent': 'SistemaArboladoUrbano/1.0 (proyecto educativo de catastro de arbolado)' };
 
-const species = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'data', 'species.json'), 'utf8'));
+const species = JSON.parse(fs.readFileSync(path.join(ROOT, 'datos', 'species.json'), 'utf8'));
 const existing = fs.existsSync(OUT) ? JSON.parse(fs.readFileSync(OUT, 'utf8')) : {};
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));

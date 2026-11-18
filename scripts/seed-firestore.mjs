@@ -1,7 +1,7 @@
 // ============================================================================
 // seed-firestore.mjs — migración inicial de los datos estáticos a Firestore
 // ----------------------------------------------------------------------------
-// Carga public/data/*.json en Firestore (colecciones arboles y especies) con
+// Carga datos/*.json en Firestore (colecciones arboles y especies) con
 // trazabilidad, asigna el rol de administrador a un usuario y sube el snapshot
 // inicial a Storage para que la vista pública funcione de inmediato.
 //
@@ -23,7 +23,7 @@ import { dirname, join } from 'node:path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
-const DATA = join(ROOT, 'public', 'data');
+const DATA = join(ROOT, 'datos');
 
 // ---- Argumentos ----
 const args = process.argv.slice(2);
@@ -58,8 +58,14 @@ if (existsSync(saPath)) {
     process.exit(1);
   }
 }
-const bucketName = process.env.STORAGE_BUCKET || (projectId ? `${projectId}.appspot.com` : undefined);
-initializeApp({ credential, storageBucket: bucketName });
+// Proyecto y bucket: se leen de assets/js/firebase-config.js si no vienen de la
+// clave de servicio o de variables de entorno (los proyectos nuevos usan el
+// dominio <proyecto>.firebasestorage.app, no <proyecto>.appspot.com).
+let webCfg = null;
+try { webCfg = (await import(new URL('../assets/js/firebase-config.js', import.meta.url).href)).firebaseConfig; } catch { /* sin config web */ }
+projectId = projectId || process.env.GOOGLE_CLOUD_PROJECT || webCfg?.projectId;
+const bucketName = process.env.STORAGE_BUCKET || webCfg?.storageBucket || (projectId ? `${projectId}.firebasestorage.app` : undefined);
+initializeApp({ credential, projectId, storageBucket: bucketName });
 const db = getFirestore();
 const now = FieldValue.serverTimestamp();
 
@@ -145,6 +151,9 @@ async function subirSnapshot() {
     await bucket.upload(lp, { destination: dest, metadata: { contentType: `${type}; charset=utf-8`, cacheControl: 'public,max-age=300' } });
     log(`✓ Snapshot subido: ${dest}`);
   }
+  // Marca de publicación: la vista pública solo usa Storage si existe.
+  await db.collection('meta').doc('publicacion').set({ publicado: true, modificadoPor: 'seed', modificadoEn: now });
+  log('✓ Marca meta/publicacion creada');
 }
 
 // ---------------------------------------------------------------------------

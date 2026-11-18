@@ -20,6 +20,8 @@ export const SNAPSHOT_PATHS = {
   stats: 'publico/stats.json',
   meta: 'publico/meta.json',
 };
+// Documento meta/{SNAPSHOT_MARK} que indica que hay un snapshot publicado.
+export const SNAPSHOT_MARK = 'publicacion';
 
 const BATCH_SIZE = 450;              // < 500 operaciones por lote (límite Firestore)
 
@@ -364,6 +366,12 @@ export async function publishSnapshot({ onProgress } = {}) {
     put(SNAPSHOT_PATHS.stats, stats),
     put(SNAPSHOT_PATHS.meta, meta),
   ]);
+  // Marca pública (lectura libre en las reglas): la vista pública solo pide el
+  // snapshot a Storage si existe esta marca; si no, usa los datos estáticos.
+  await f.firestore.setDoc(f.firestore.doc(f.db, 'meta', SNAPSHOT_MARK), {
+    publicado: true, arboles: features.length, especies: species.length,
+    modificadoPor: meta.publicado_por, modificadoEn: f.firestore.serverTimestamp(),
+  });
   await audit('snapshot', '(publicacion)', 'publicacion', user, { arboles: features.length, especies: species.length });
   return { arboles: features.length, especies: species.length };
 }

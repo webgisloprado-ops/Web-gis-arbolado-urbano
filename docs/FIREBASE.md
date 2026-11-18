@@ -4,8 +4,19 @@ Esta guía lleva el proyecto de **datos estáticos** a **Firestore + Auth + Stor
 manteniendo la vista pública rápida mediante un *snapshot* publicado.
 
 > Mientras no completes estos pasos, la web **sigue funcionando** con los datos
-> estáticos de `public/data/`. Firebase se activa solo cuando existe
+> estáticos de `datos/`. Firebase se activa solo cuando existe
 > `assets/js/firebase-config.js` con credenciales válidas.
+
+## Estado de este proyecto
+
+| Pieza | Estado |
+|---|---|
+| Proyecto Firebase | `web-gis-arbolado-urbano` (`.firebaserc`) |
+| App web + `firebase-config.js` | ✅ Creada y configurada |
+| Firestore | ✅ Creado en `southamerica-west1` (Santiago), reglas desplegadas |
+| Authentication | ⏳ Activar **Correo electrónico/contraseña** en la consola (paso 1) |
+| Storage | ⏳ Requiere activar Storage en la consola (plan Blaze) — sin él, la vista pública usa `datos/` |
+| Datos en Firestore | ⏳ `npm run seed -- --admin-email <correo>` (paso 4) |
 
 ---
 
@@ -34,7 +45,7 @@ archivo publicado y el admin **publica** cuando termina de editar.
 1. Entra en <https://console.firebase.google.com> e inicia sesión.
 2. **Agregar proyecto** → nombre (p. ej. `arbolado-urbano`) → crear.
 3. En **Compilación** activa los tres servicios:
-   - **Firestore Database** → *Crear base de datos* → modo **producción** → una región (p. ej. `southamerica-east1`).
+   - **Firestore Database** → *Crear base de datos* → modo **producción** → una región (p. ej. `southamerica-west1`, Santiago).
    - **Authentication** → *Comenzar* → habilita **Correo electrónico/contraseña**.
    - **Storage** → *Comenzar* → acepta las reglas por defecto (las reemplazaremos).
 
@@ -52,7 +63,7 @@ archivo publicado y el admin **publica** cuando termina de editar.
    // assets/js/firebase-config.js
    export const firebaseConfig = {
      apiKey: "…", authDomain: "TU_PROYECTO.firebaseapp.com",
-     projectId: "TU_PROYECTO", storageBucket: "TU_PROYECTO.appspot.com",
+     projectId: "TU_PROYECTO", storageBucket: "TU_PROYECTO.firebasestorage.app",
      messagingSenderId: "…", appId: "…",
    };
    export const ADMINS = ["tucorreo@gmail.com"]; // respaldo si aún no hay rol en Firestore
@@ -91,7 +102,8 @@ Necesitas una **clave de cuenta de servicio** (solo para la migración, en tu PC
 npm install -g firebase-tools     # una sola vez
 firebase login
 firebase use --add                # elige tu proyecto
-npm run deploy:rules              # despliega firestore.rules y storage.rules
+npm run deploy:rules              # despliega firestore.rules
+npm run deploy:storage            # despliega storage.rules (cuando Storage esté activo)
 ```
 
 ## 6. Probar

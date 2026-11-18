@@ -1,0 +1,13 @@
+# Solo se publica el sitio estático (index.html, assets/, datos/).
+# El backend es Firebase; la antigua API de Vercel + Postgres queda fuera.
+api/
+assets/js/api.js
+scripts/
+docs/
+.claude/
+.firebase/
+firebase-debug.log
+serviceAccount.json
+.env
+*.bat
+server.mjs

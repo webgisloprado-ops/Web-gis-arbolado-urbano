@@ -30,7 +30,7 @@ const DEFAULT_CRED = { user: 'admin', pass: 'arbolado2026' };
 const getCred = () => store.get('admin-cred', DEFAULT_CRED);
 
 let _ctx = { configured: false, backend: 'estatico', user: null, rol: 'consulta' };
-const nombreBackend = b => ({ vercel: 'Vercel Postgres', firebase: 'Firebase', estatico: 'datos estáticos' }[b] || b);
+const nombreBackend = b => ({ firebase: 'Firebase', estatico: 'datos estáticos' }[b] || b);
 
 export async function renderAdmin(main, params) {
   main.innerHTML = '<div class="loader-full"><div class="spinner"></div><p>Cargando panel…</p></div>';
@@ -98,7 +98,7 @@ function renderLogin(main) {
         ])
       : el('div', { class: 'callout callout-amber', style: 'margin-top:16px;font-size:.82rem' }, [
           el('span', { class: 'ci', text: '⚠️' }),
-          el('div', {}, [el('strong', { text: 'Modo demostración local. ' }), 'No hay backend configurado. Acceso por defecto: ', el('code', { text: getCred().user }), ' / ', el('code', { text: 'arbolado2026' }), '. Conecta Vercel (docs/VERCEL.md) o Firebase (docs/FIREBASE.md) para seguridad real.']),
+          el('div', {}, [el('strong', { text: 'Modo demostración local. ' }), 'No hay backend configurado. Acceso por defecto: ', el('code', { text: getCred().user }), ' / ', el('code', { text: 'arbolado2026' }), '. Conecta Firebase (docs/FIREBASE.md) para seguridad real.']),
         ]),
   ]);
   main.append(el('div', { class: 'wrap' }, [card]));
@@ -182,7 +182,7 @@ async function resumen(c) {
     el('span', { class: 'ci', text: _ctx.configured ? '☁️' : '⚠️' }),
     el('div', {}, _ctx.configured
       ? [el('strong', { text: `Conectado a ${nombreBackend(_ctx.backend)}. ` }), 'Los cambios que hagas aquí se guardan en la base de datos con trazabilidad. La vista pública lee el último snapshot publicado.']
-      : [el('strong', { text: 'Modo demostración local. ' }), 'No hay backend configurado; los datos provienen de los archivos estáticos. Sigue ', el('a', { href: '#/admin/resumen', text: 'docs/VERCEL.md o docs/FIREBASE.md' }), ' para conectar la base de datos.']),
+      : [el('strong', { text: 'Modo demostración local. ' }), 'No hay backend configurado; los datos provienen de los archivos estáticos. Sigue ', el('a', { href: '#/admin/resumen', text: 'docs/FIREBASE.md' }), ' para conectar la base de datos.']),
   ]));
 
   if (_ctx.configured && (esAdminPleno(_ctx.rol) || _ctx.rol === 'gis')) {
@@ -533,23 +533,18 @@ async function usuarios(c) {
   if (!_ctx.configured) {
     const demo = [['María González', 'admin'], ['Pedro Soto', 'gis'], ['Ana Rivas', 'editor'], ['Consulta Pública', 'consulta']];
     c.append(tablaUsuarios(demo.map(([n, r]) => ({ nombre: n, rol: r, estado: 'activo' }))));
-    c.append(el('div', { class: 'callout callout-amber', style: 'margin-top:16px' }, [el('span', { class: 'ci', text: '👥' }), 'Usuarios de demostración. Conecta un backend (Vercel o Firebase) para gestionar cuentas y roles reales.']));
+    c.append(el('div', { class: 'callout callout-amber', style: 'margin-top:16px' }, [el('span', { class: 'ci', text: '👥' }), 'Usuarios de demostración. Conecta Firebase para gestionar cuentas y roles reales.']));
     return;
   }
-  const backend = await db.getBackend();
   const rows = await db.listUsuarios();
   if (!rows.length) {
-    const ayuda = backend === 'vercel'
-      ? ['Aún no hay usuarios. Créalos con ', el('code', { text: 'npm run seed:vercel -- --admin-email <correo> --admin-password <clave>' }), ' o insertando filas en la tabla ', el('code', { text: 'usuarios' }), ' (rol: admin | gis | editor | consulta).']
-      : ['Aún no hay documentos de rol. Crea un documento en la colección ', el('code', { text: 'usuarios/{uid}' }), ' con el campo ', el('code', { text: 'rol' }), ' (admin | gis | editor | consulta). El uid es el de Authentication.'];
+    const ayuda = ['Aún no hay documentos de rol. Crea un documento en la colección ', el('code', { text: 'usuarios/{uid}' }), ' con el campo ', el('code', { text: 'rol' }), ' (admin | gis | editor | consulta). El uid es el de Authentication.'];
     c.append(el('div', { class: 'callout callout-blue' }, [el('span', { class: 'ci', text: 'ℹ️' }), el('div', {}, ayuda)]));
   } else {
     c.append(tablaUsuarios(rows));
   }
   if (esAdminPleno(_ctx.rol)) {
-    c.append(el('p', { class: 'muted', style: 'margin-top:14px;font-size:.86rem', text: backend === 'vercel'
-      ? 'Las cuentas se gestionan con el script de migración o directamente en la tabla usuarios (contraseñas cifradas con bcrypt).'
-      : 'La creación de cuentas se hace en la consola de Firebase (Authentication). Aquí se administran los roles.' }));
+    c.append(el('p', { class: 'muted', style: 'margin-top:14px;font-size:.86rem', text: 'La creación de cuentas se hace en la consola de Firebase (Authentication). Aquí se administran los roles.' }));
   }
 }
 function tablaUsuarios(rows) {
@@ -572,7 +567,7 @@ function tablaUsuarios(rows) {
 function importar(c) {
   c.append(el('p', { class: 'muted', text: 'El asistente de importación de 5 pasos analiza, mapea, valida y guarda datos en Firestore por lotes (sin trabar el navegador).' }));
   c.append(el('a', { class: 'btn btn-primary', href: '#/importar', text: '📥 Abrir asistente de importación' }));
-  if (!_ctx.configured) c.append(el('div', { class: 'callout callout-amber', style: 'margin-top:14px' }, [el('span', { class: 'ci', text: '⚠️' }), 'Sin backend configurado, el asistente valida y previsualiza pero no persiste. Conecta Vercel o Firebase para guardar de verdad.']));
+  if (!_ctx.configured) c.append(el('div', { class: 'callout callout-amber', style: 'margin-top:14px' }, [el('span', { class: 'ci', text: '⚠️' }), 'Sin backend configurado, el asistente valida y previsualiza pero no persiste. Conecta Firebase para guardar de verdad.']));
 }
 
 // ---------------------------------------------------------------------------

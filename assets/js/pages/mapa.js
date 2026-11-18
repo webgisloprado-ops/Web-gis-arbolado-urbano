@@ -85,7 +85,8 @@ export async function renderMapa(main, params = {}) {
 
   function apply() {
     current = filterTrees(filters);
-    document.getElementById('mp-count').innerHTML = `<b>${fmt(current.length)}</b> de ${fmt(getTrees().length)} árboles`;
+    const cnt = pillCount.querySelector('#mp-count');
+    if (cnt) cnt.innerHTML = `<b>${fmt(current.length)}</b> de ${fmt(getTrees().length)} árboles`;
     tm.render(current, { onSelect });
     updateZone();
   }
@@ -98,7 +99,7 @@ export async function renderMapa(main, params = {}) {
       const [lon, lat] = f.geometry.coordinates;
       if (b.contains([lat, lon])) { n++; sp.add(f.properties.sp); }
     }
-    const z = document.getElementById('mp-zone');
+    const z = pillZone;
     if (tm.map.getZoom() >= 14 && n > 0) {
       z.hidden = false;
       z.innerHTML = `📍 En esta vista: <b style="margin:0 4px">${fmt(n)}</b> árboles · <b style="margin:0 4px">${sp.size}</b> especies`;

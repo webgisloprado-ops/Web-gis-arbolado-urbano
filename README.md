@@ -1,6 +1,6 @@
-# 🌳 Sistema Inteligente de Arbolado Urbano
+# 🌳 Web-gis-arbolado-urbano
 
-Plataforma **WebGIS** de gestión, análisis y consulta ciudadana del arbolado urbano.
+**Sistema Inteligente de Arbolado Urbano** — plataforma **WebGIS** de gestión, análisis y consulta ciudadana del arbolado urbano.
 Cada árbol georreferenciado, con su especie, su ficha botánica y su ubicación exacta —
 del ciudadano curioso al equipo técnico municipal.
 
@@ -55,7 +55,7 @@ npm run datos
 node scripts/generar-datos.mjs "C:/ruta/a/mi/Shapefile"
 ```
 
-Esto produce en `public/data/`: `trees.geojson`, `species.json`, `stats.json` y `meta.json`.
+Esto produce en `datos/`: `trees.geojson`, `species.json`, `stats.json` y `meta.json`.
 
 ---
 
@@ -74,7 +74,7 @@ Esto produce en `public/data/`: `trees.geojson`, `species.json`, `stats.json` y 
 │       ├── ui.js              # componentes (ficha, tarjeta, imagen)
 │       ├── util.js            # utilidades + lámina botánica + QR
 │       └── pages/             # una vista por archivo
-├── public/data/               # datos generados (GeoJSON + JSON)
+├── datos/                    # datos generados (GeoJSON + JSON)
 ├── scripts/
 │   ├── generar-datos.mjs      # ETL: Shapefile/.aprx → datos de la web
 │   └── botanica.mjs           # referencia botánica real de las especies
@@ -85,16 +85,15 @@ Esto produce en `public/data/`: `trees.geojson`, `species.json`, `stats.json` y 
 
 ## 🌐 Despliegue (Vercel)
 
-Es un sitio estático: se despliega tal cual.
+Es un sitio estático (sin build): Vercel lo sirve tal cual y Firebase hace de backend.
 
 ```bash
-# opción 1: CLI
-npx vercel --prod
-
-# opción 2: conectar el repositorio en vercel.com (sin build command)
+npm run deploy:web     # = vercel --prod
 ```
 
-`vercel.json` ya incluye `cleanUrls` y cabeceras de caché para `public/data`.
+`vercel.json` ya incluye `cleanUrls` y cabeceras de caché para `datos/`, y
+`.vercelignore` deja fuera scripts, documentación y la antigua API de Postgres
+(la carpeta `api/` ya no se usa: el backend es Firebase).
 Cualquier hosting estático (Netlify, GitHub Pages, S3+CloudFront) funciona igual.
 
 ---
@@ -141,8 +140,8 @@ mantiene la vista pública rápida y barata aunque el catastro crezca:
   (sin trabar el navegador), con barra de progreso.
 
 > **Sin configurar Firebase la web sigue funcionando** con los datos estáticos de
-> `public/data/` (modo demostración, claramente etiquetado). Firebase se activa al crear
-> `assets/js/firebase-config.js`.
+> `datos/` (modo demostración, claramente etiquetado). Firebase se activa con
+> `assets/js/firebase-config.js`, ya configurado para el proyecto `web-gis-arbolado-urbano`.
 
 👉 **Guía de conexión paso a paso: [`docs/FIREBASE.md`](docs/FIREBASE.md)** — crear el
 proyecto, migrar los datos (`npm run seed`) y desplegar las reglas de seguridad.

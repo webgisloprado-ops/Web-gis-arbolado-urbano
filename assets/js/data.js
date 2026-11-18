@@ -3,7 +3,7 @@
 // ----------------------------------------------------------------------------
 // Origen de datos con prioridad (lo decide backend.js):
 //   1. Snapshot publicado (Vercel Blob o Firebase Storage), si hay backend.
-//   2. Datos estáticos en public/data/ (fallback siempre disponible).
+//   2. Datos estáticos en datos/ (fallback siempre disponible).
 // La forma de los datos es idéntica en todos los casos, así que las vistas no
 // cambian según el origen.
 // ============================================================================
@@ -28,10 +28,10 @@ export function loadData() {
   _loadPromise = (async () => {
     const remote = await snapshotSources();
     const src = remote || {
-      trees: 'public/data/trees.geojson',
-      species: 'public/data/species.json',
-      stats: 'public/data/stats.json',
-      meta: 'public/data/meta.json',
+      trees: 'datos/trees.geojson',
+      species: 'datos/species.json',
+      stats: 'datos/stats.json',
+      meta: 'datos/meta.json',
       origen: 'estatico',
     };
     const [g, sp, st, mt, imgs] = await Promise.all([
@@ -39,7 +39,7 @@ export function loadData() {
       fetch(src.species).then(r => r.json()),
       fetch(src.stats).then(r => r.json()),
       src.meta ? fetch(src.meta).then(r => r.json()).catch(() => null) : Promise.resolve(null),
-      fetch('public/data/species-images.json').then(r => r.json()).catch(() => ({})),
+      fetch('datos/species-images.json').then(r => r.json()).catch(() => ({})),
     ]);
     state.origen = src.origen;
     state.trees = g.features;

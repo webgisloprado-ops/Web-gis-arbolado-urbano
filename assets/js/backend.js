@@ -1,28 +1,19 @@
 // ============================================================================
 // backend.js — facade que selecciona el backend de datos y expone una interfaz
 // única a las vistas. Detección automática por prioridad:
-//   1. Vercel      (funciones /api/* + Postgres)  → si /api/health responde db:true
-//   2. Firebase    (Firestore + Auth + Storage)   → si hay firebase-config.js válido
-//   3. Estático    (public/data/*)                → fallback de solo lectura
-// Las páginas importan SIEMPRE desde aquí, no de db.js/api.js directamente.
+//   1. Firebase    (Firestore + Auth + Storage)   → si hay firebase-config.js válido
+//   2. Estático    (datos/*)                       → fallback de solo lectura
+// Las páginas importan SIEMPRE desde aquí, no de db.js/firebase.js directamente.
 // ============================================================================
 import * as fbData from './db.js';
-import { SNAPSHOT_PATHS } from './db.js';
+import { SNAPSHOT_PATHS, SNAPSHOT_MARK } from './db.js';
 import { login as fbLogin, logout as fbLogout, currentUser as fbUser, getUserRole as fbRole, initFirebase } from './firebase.js';
-import * as vx from './api.js';
 
 let _backend = null;
 
 export async function getBackend() {
   if (_backend) return _backend;
-  // 1) ¿Backend Vercel disponible y con base configurada?
-  try {
-    const r = await fetch('/api/health', { cache: 'no-store' });
-    if (r.ok) { const j = await r.json(); if (j && j.backend === 'vercel' && j.db) { _backend = 'vercel'; return _backend; } }
-  } catch { /* sin /api → no es Vercel */ }
-  // 2) ¿Firebase configurado?
   try { if ((await initFirebase()).configured) { _backend = 'firebase'; return _backend; } } catch { /* */ }
-  // 3) Estático.
   _backend = 'estatico';
   return _backend;
 }
@@ -30,52 +21,58 @@ export async function getBackend() {
 export async function isConfigured() { return (await getBackend()) !== 'estatico'; }
 export function resetBackendCache() { _backend = null; }
 
-const isVercel = async () => (await getBackend()) === 'vercel';
-
 // ---- Autenticación ----
-export async function login(email, password) { return (await isVercel()) ? vx.login(email, password) : fbLogin(email, password); }
-export async function logout() { return (await isVercel()) ? vx.logout() : fbLogout(); }
-export async function currentUser() { return (await isVercel()) ? vx.currentUser() : fbUser(); }
-export async function getUserRole(user) { return (await isVercel()) ? vx.getUserRole(user) : fbRole(user); }
+export const login = (email, password) => fbLogin(email, password);
+export const logout = () => fbLogout();
+export const currentUser = () => fbUser();
+export const getUserRole = user => fbRole(user);
 
 // ---- Árboles ----
-export async function listArboles(o) { return (await isVercel()) ? vx.listArboles(o) : fbData.listArboles(o); }
-export async function getArbol(id) { return (await isVercel()) ? vx.getArbol(id) : fbData.getArbol(id); }
-export async function saveArbol(d, o) { return (await isVercel()) ? vx.saveArbol(d, o) : fbData.saveArbol(d, o); }
-export async function softDeleteArbol(id) { return (await isVercel()) ? vx.softDeleteArbol(id) : fbData.softDeleteArbol(id); }
-export async function restoreArbol(id) { return (await isVercel()) ? vx.restoreArbol(id) : fbData.restoreArbol(id); }
-export async function nextArbolId() { return (await isVercel()) ? vx.nextArbolId() : fbData.nextArbolId(); }
-export async function bulkImportArboles(rows, m, k, o) { return (await isVercel()) ? vx.bulkImportArboles(rows, m, k, o) : fbData.bulkImportArboles(rows, m, k, o); }
+export const listArboles = o => fbData.listArboles(o);
+export const getArbol = id => fbData.getArbol(id);
+export const saveArbol = (d, o) => fbData.saveArbol(d, o);
+export const softDeleteArbol = id => fbData.softDeleteArbol(id);
+export const restoreArbol = id => fbData.restoreArbol(id);
+export const nextArbolId = () => fbData.nextArbolId();
+export const bulkImportArboles = (rows, m, k, o) => fbData.bulkImportArboles(rows, m, k, o);
 
 // ---- Especies ----
-export async function listEspecies() { return (await isVercel()) ? vx.listEspecies() : fbData.listEspecies(); }
-export async function saveEspecie(d, o) { return (await isVercel()) ? vx.saveEspecie(d, o) : fbData.saveEspecie(d, o); }
-export async function softDeleteEspecie(s) { return (await isVercel()) ? vx.softDeleteEspecie(s) : fbData.softDeleteEspecie(s); }
-export async function setEspecieImagen(s, img) { return (await isVercel()) ? vx.setEspecieImagen(s, img) : fbData.setEspecieImagen(s, img); }
-export async function uploadImagen(f, s) { return (await isVercel()) ? vx.uploadImagen(f, s) : fbData.uploadImagen(f, s); }
+export const listEspecies = () => fbData.listEspecies();
+export const saveEspecie = (d, o) => fbData.saveEspecie(d, o);
+export const softDeleteEspecie = s => fbData.softDeleteEspecie(s);
+export const setEspecieImagen = (s, img) => fbData.setEspecieImagen(s, img);
+export const uploadImagen = (f, s) => fbData.uploadImagen(f, s);
 
 // ---- Reportes ----
-export async function crearReporte(d) { return (await isVercel()) ? vx.crearReporte(d) : fbData.crearReporte(d); }
-export async function listReportes(e) { return (await isVercel()) ? vx.listReportes(e) : fbData.listReportes(e); }
-export async function resolverReporte(id, e) { return (await isVercel()) ? vx.resolverReporte(id, e) : fbData.resolverReporte(id, e); }
+export const crearReporte = d => fbData.crearReporte(d);
+export const listReportes = e => fbData.listReportes(e);
+export const resolverReporte = (id, e) => fbData.resolverReporte(id, e);
 
 // ---- Auditoría ----
-export async function listAuditoria(max) { return (await isVercel()) ? vx.listAuditoria(max) : fbData.listAuditoria(max); }
+export const listAuditoria = max => fbData.listAuditoria(max);
 
 // ---- Usuarios ----
-export async function listUsuarios() { return (await isVercel()) ? vx.listUsuarios() : fbData.listUsuarios(); }
+export const listUsuarios = () => fbData.listUsuarios();
 
 // ---- Snapshot ----
-export async function publishSnapshot(o) { return (await isVercel()) ? vx.publishSnapshot(o) : fbData.publishSnapshot(o); }
-export async function snapshotURL(w) { return (await isVercel()) ? vx.snapshotURL(w) : fbData.snapshotURL(w); }
+export const publishSnapshot = o => fbData.publishSnapshot(o);
+export const snapshotURL = w => fbData.snapshotURL(w);
 
 // Fuentes del snapshot para la vista pública (o null → fallback estático).
+// Si Storage aún no está activado o no hay snapshot publicado, se usan los
+// datos estáticos de datos/ sin romper la vista pública.
+const conLimite = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
+
 export async function snapshotSources() {
-  const b = await getBackend();
-  if (b === 'vercel') return vx.snapshotSources();
-  if (b === 'firebase') {
-    try {
+  if ((await getBackend()) !== 'firebase') return null;
+  try {
+    return await conLimite((async () => {
       const f = await initFirebase();
+      // 1) ¿Hay un snapshot publicado? (meta/publicacion es de lectura pública)
+      const { doc, getDoc } = f.firestore;
+      const marca = await getDoc(doc(f.db, 'meta', SNAPSHOT_MARK));
+      if (!marca.exists() || !marca.data().publicado) return null;
+      // 2) URLs de descarga del snapshot en Storage.
       const { ref, getDownloadURL } = f.storageApi;
       const [trees, species, stats, meta] = await Promise.all([
         getDownloadURL(ref(f.storage, SNAPSHOT_PATHS.trees)),
@@ -84,7 +81,6 @@ export async function snapshotSources() {
         getDownloadURL(ref(f.storage, SNAPSHOT_PATHS.meta)).catch(() => null),
       ]);
       return { trees, species, stats, meta, origen: 'firebase' };
-    } catch { return null; }
-  }
-  return null;
+    })(), 8000);
+  } catch { return null; }
 }

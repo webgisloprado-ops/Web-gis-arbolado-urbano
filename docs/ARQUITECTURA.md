@@ -15,7 +15,7 @@ y el mapeo de las 49 secciones del encargo.
                  └───────────────┬──────────────────────────────┘
                                  │ fetch (GeoJSON/JSON estáticos)
                  ┌───────────────▼──────────────────────────────┐
-                 │  public/data/  (generado por el ETL)          │  ← ESTA ENTREGA
+                 │  datos/        (generado por el ETL)          │  ← ESTA ENTREGA
                  │  trees.geojson · species.json · stats.json    │
                  └───────────────▲──────────────────────────────┘
                                  │ scripts/generar-datos.mjs (Shapefile/.aprx → GeoJSON)
