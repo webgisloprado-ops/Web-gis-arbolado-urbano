@@ -17,7 +17,7 @@ export const BASEMAPS = {
   street: { name: 'Callejero', url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', attribution: '© OpenStreetMap', max: 19 },
   satelite: { name: 'Satélite', url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', attribution: '© Esri, Maxar', max: 19 },
   topo: { name: 'Topográfico', url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', attribution: '© OpenTopoMap', max: 17 },
-  claro: { name: 'Claro', url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', attribution: '© CARTO © OSM', max: 20 },
+  
 };
 
 export class TreeMap {
