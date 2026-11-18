@@ -9,3 +9,6 @@ node_modules/
 serviceAccount.json
 .firebase/
 firebase-debug.log
+
+.vercel
+.env*

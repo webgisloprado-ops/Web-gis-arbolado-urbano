@@ -9,5 +9,7 @@ docs/
 firebase-debug.log
 serviceAccount.json
 .env
+.env.*
+!.env.example
 *.bat
 server.mjs

@@ -81,6 +81,6 @@ export async function snapshotSources() {
         getDownloadURL(ref(f.storage, SNAPSHOT_PATHS.meta)).catch(() => null),
       ]);
       return { trees, species, stats, meta, origen: 'firebase' };
-    })(), 8000);
+    })(), 5000);
   } catch { return null; }
 }
